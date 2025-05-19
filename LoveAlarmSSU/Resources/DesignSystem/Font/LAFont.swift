@@ -52,23 +52,23 @@ struct FontWithLineHeight: ViewModifier {
     let weight: LAFont.Weight
     let language: LAFont.Language
 
-    var uiFontWeight: String {
-        switch weight {
-        case .weak:    return "Regular"
-        case .regular: return "Medium"
-        case .strong:  return language == .kor ? "Bold" : "SemiBold"
-        }
-    }
-
-    var uiFontName: String {
-        switch language {
-        case .kor: "SUIT-\(uiFontWeight)"
-        case .eng: "Inter-\(uiFontWeight)"
-        }
-    }
-
     var uiFont: UIFont {
-        UIFont(name: uiFontName, size: laFont.size) ?? UIFont.systemFont(ofSize: laFont.size)
+        var uiFontWeight: String {
+            switch weight {
+            case .weak:    return "Regular"
+            case .regular: return "Medium"
+            case .strong:  return language == .kor ? "Bold" : "SemiBold"
+            }
+        }
+
+        var uiFontName: String {
+            switch language {
+            case .kor: "SUIT-\(uiFontWeight)"
+            case .eng: "Inter-\(uiFontWeight)"
+            }
+        }
+
+        return UIFont(name: uiFontName, size: laFont.size) ?? UIFont.systemFont(ofSize: laFont.size)
     }
 
     func body(content: Content) -> some View {

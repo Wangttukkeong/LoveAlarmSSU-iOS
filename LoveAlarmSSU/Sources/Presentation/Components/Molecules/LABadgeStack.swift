@@ -15,10 +15,12 @@ struct LABadgeStack<T: Identifiable>: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: wrap ? 8 : 6) {
-                ForEach(contents) { 
+                ForEach(contents) {
                     LABadge(text: $0[keyPath: textKeyPath])
                 }
             }
+            .padding(.vertical, 8)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }

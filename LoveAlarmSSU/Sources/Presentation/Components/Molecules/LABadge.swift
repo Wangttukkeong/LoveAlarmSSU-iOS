@@ -10,10 +10,10 @@ import SwiftUI
 struct LABadge: View {
     let text: String
     var body: some View {
-        Text("9")
+        Text(text)
             .font(LAFont.caption, weight: .regular)
             .foregroundStyle(LAColor.Content.additive)
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(LAColor.BG.Fill.regular)
             .clipShape(.rect(cornerRadius: 4))

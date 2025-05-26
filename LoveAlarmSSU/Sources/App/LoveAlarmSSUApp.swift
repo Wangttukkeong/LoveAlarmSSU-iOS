@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct LoveAlarmSSUApp: App {
+
+    init() { LocationService.shared.startLocationUpdate() }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }

@@ -22,8 +22,10 @@ final class LocationService: NSObject {
 
     // Publisher
     /// 위치 변화 Publisher
-    var currentLocationPublisher: AnyPublisher<CLLocation?, Never> {
-        currentLocationSubject.eraseToAnyPublisher()
+    var currentLocationPublisher: AnyPublisher<CLLocation, Never> {
+        currentLocationSubject
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
     }
     /// 권한 상태 변화 Publisher
     var authorizationStatusPublisher: AnyPublisher<CLAuthorizationStatus, Never> {
@@ -89,10 +91,13 @@ final class LocationService: NSObject {
 
 extension LocationService: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let loc = locations.last {
-            dump("사용자 위치: \(loc.coordinate)")
-            self.currentLocation = loc
+        guard let loc = locations.last else {
+            dump(#function); dump("locations empty")
+            return
         }
+        dump("사용자 위치: \(loc.coordinate)")
+        self.currentLocation = loc
+
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

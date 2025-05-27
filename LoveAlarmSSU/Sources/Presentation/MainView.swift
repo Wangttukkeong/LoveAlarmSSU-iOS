@@ -31,8 +31,6 @@ private struct MapView: View {
             position: $cameraPosition,
             interactionModes: .all
         ) {
-            UserAnnotation()
-
             ForEach(0..<100, id: \.self) {
                 Annotation("", coordinate: .init(latitude: CGFloat($0), longitude: 100)) {
                     Circle().frame(width: 24, height: 24)
@@ -63,16 +61,20 @@ private struct TopContainer: View {
 
             LABadgeStack(
                 wrap: false,
-                contents: (0..<5).map { TempBadgeModel(text: "\($0)번째") },
-                textKeyPath: \.text
+                contents: (0..<5).map { _ in TempBadgeModel(text: "#밴드") },
+                textKeyPath: \.text,
+                textColor: LAColor.Content.additive,
+                backgroundColor: LAColor.BG.Fill.regular
             )
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 16)
         .background(LAColor.BG.Fill.interactive)
+        .background(Material.ultraThinMaterial)
         .clipShape(.rect(cornerRadius: 16))
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
+        
 
         Spacer()
     }
@@ -127,5 +129,8 @@ extension MainView {
 }
 
 #Preview {
-    MainView()
+    LAProgressBar(progress: 80)
+//    MainView()
 }
+
+

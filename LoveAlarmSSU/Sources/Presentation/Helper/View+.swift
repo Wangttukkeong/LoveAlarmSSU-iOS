@@ -31,4 +31,10 @@ extension View {
             self.toolbar(visibility, for: bar)
         }
     }
+
+    @ViewBuilder
+    func conditionalBackgroundBlur(condition: Bool, material: Material) -> some View {
+        if condition { self.background(material) }
+        else { self }
+    }
 }

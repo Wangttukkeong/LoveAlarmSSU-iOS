@@ -84,6 +84,7 @@ struct LAInputField: View {
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .background(LAColor.BG.Fill.regular)
+                .background(LAStyle.Blur.ultraThin)
                 .clipShape(.rect(cornerRadius: 16))
 
                 if let subLabel = subLabel {
@@ -92,9 +93,11 @@ struct LAInputField: View {
                         .foregroundStyle(LAColor.Content.additive)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 10)
-                        .padding(.leading, 4)
+                        .padding(.horizontal, 4)
                 }
             }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
         }
     }
 }

@@ -9,8 +9,14 @@ import SwiftUI
 import Foundation
 
 enum LAStyle {
-    private enum Blur {}
-    private enum Shadow {}
+    enum Blur {
+        static var bar: Material { Material.bar }
+        static var thick: Material { Material.thick }
+        static var thin: Material { Material.thin }
+        static var ultraThin: Material { Material.ultraThin }
+        static var ultraThick: Material { Material.ultraThick }
+    }
+    enum Shadow {}
 }
 
 struct ss: View {

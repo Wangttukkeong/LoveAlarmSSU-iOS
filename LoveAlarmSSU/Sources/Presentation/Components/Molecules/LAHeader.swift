@@ -50,6 +50,14 @@ struct LAHeader: View {
         }
     }
 
+    init(subTitle: String? = nil, title: String, contents: String? = nil, size: Size, align: Align) {
+        self.subTitle = subTitle
+        self.title = title
+        self.contents = contents
+        self.size = size
+        self.align = align
+    }
+
     var body: some View {
         VStack(spacing: 2) {
             Group {
@@ -57,6 +65,7 @@ struct LAHeader: View {
                     Text(subTitle)
                         .font(LAFont.footnote, weight: .weak)
                         .foregroundStyle(LAColor.Content.assistive)
+
                 }
                 Text(title)
                     .font(size == .large ? LAFont.headline : LAFont.body, weight: .strong)
@@ -69,6 +78,7 @@ struct LAHeader: View {
             }
             .frame(maxWidth: .infinity, alignment: align.alignment)
             .multilineTextAlignment(align.textAlignment)
+            .lineLimit(1)
         }
         .padding(.vertical, size == .large ? 16 : 10)
         .padding(.horizontal, 20)

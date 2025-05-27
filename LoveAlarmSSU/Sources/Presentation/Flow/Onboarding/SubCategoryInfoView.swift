@@ -1,5 +1,5 @@
 //
-//  InterestsInfoView.swift
+//  SubCategoryInfoView.swift
 //  LoveAlarmSSU
 //
 //  Created by 박현수 on 5/26/25.
@@ -7,12 +7,14 @@
 
 import SwiftUI
 
-struct InterestsInfoView: View {
+struct SubCategoryInfoView: View {
     var body: some View {
-        Text("Hello, World!")
+        VStack(spacing: 0) {
+            
+        }
     }
 }
 
 #Preview {
-    InterestsInfoView()
+    
 }

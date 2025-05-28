@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DFA5FC622DE776A5002A89E1 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DFA5FC612DE776A5002A89E1 /* Moya */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DFDDEA5D2DCF4D29002A321D /* LoveAlarmSSU.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoveAlarmSSU.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFA5FC622DE776A5002A89E1 /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = LoveAlarmSSU;
 			packageProductDependencies = (
+				DFA5FC612DE776A5002A89E1 /* Moya */,
 			);
 			productName = LoveAlarmSSU;
 			productReference = DFDDEA5D2DCF4D29002A321D /* LoveAlarmSSU.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = DFDDEA542DCF4D29002A321D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DFA5FC602DE776A5002A89E1 /* XCRemoteSwiftPackageReference "Moya" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DFDDEA5E2DCF4D29002A321D /* Products */;
 			projectDirPath = "";
@@ -353,6 +362,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DFA5FC602DE776A5002A89E1 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DFA5FC612DE776A5002A89E1 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFA5FC602DE776A5002A89E1 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DFDDEA552DCF4D29002A321D /* Project object */;
 }

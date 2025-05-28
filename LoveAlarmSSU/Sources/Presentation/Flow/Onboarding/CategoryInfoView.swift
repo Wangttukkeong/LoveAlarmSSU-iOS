@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct CategoryInfoView: View {
+    @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
+    @Environment(OnboardingStore.self) private var onboardingStore
     private let progress: Double = 60
-    let categories = Category.allCases
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,31 +22,49 @@ struct CategoryInfoView: View {
                 align: .leading
             )
             LeftAlignedFlowLayout(xSpacing: 8, ySpacing: 8) {
-                ForEach(categories) {
-                    LAChip(text: $0.displayValue, textColor: LAColor.Semantic.Brand.strong, backgroundColor: LAColor.Semantic.Brand.regular)
+                ForEach(onboardingStore.categories) { category in
+                    LAChip(
+                        text: category.displayValue,
+                        isSelected: onboardingStore.selectedCategories.contains(category),
+                        font: .callout,
+                        weight: .weak,
+                        color: LAColor.Semantic.Brand.strong,
+                        backgroundColor: LAColor.Semantic.Brand.regular,
+                        selectedFont: .callout,
+                        selectedWeight: .strong,
+                        selectedColor: LAColor.Content.elevated,
+                        selectedBackgroundColor: LAColor.Semantic.Brand.strong
+                    )
+                    .onTapGesture {
+                        if onboardingStore.selectedCategories.contains(category) { onboardingStore.selectedCategories.remove(category) }
+                        else {
+                            if onboardingStore.selectedCategories.count >= 2 { return }
+                            onboardingStore.selectedCategories.insert(category)
+                        }
+                    }
 
                 }
             }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
 
             Spacer()
+            LAActionButton(config:
+                .single(
+                    title: "다음으로",
+                    action: {
+                        onboardingStore.mapCategories()
+                        onboardingCoordinator.push(OnboardingRoute.firstSubCategory)
+                    },
+                    disableCondition: onboardingStore.selectedCategories.count < 2,
+                    subLabel: nil
+                )
+            )
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.rootPage(text: "\(Int(progress))% 작성 완료"))
     }
 }
 
-private struct SectionHeader: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .font(LAFont.callout, weight: .weak)
-            .foregroundStyle(LAColor.Content.base)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 4)
-            .padding(.top, 8)
-            .padding(.horizontal, 16)
-    }
-}
 
 #Preview { CategoryInfoView() }

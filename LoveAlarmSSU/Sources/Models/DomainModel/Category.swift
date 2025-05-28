@@ -22,29 +22,43 @@ enum Category: String, CaseIterable, Identifiable {
 
     var displayValue: String {
         switch self {
-        case .music:    return "🎧음악"
-        case .media:    return "🎬미디어"
-        case .game:     return "🎮게임"
-        case .exercise: return "🏋️운동"
-        case .sports:   return "⚽️스포츠"
-        case .reading:  return "📚독서"
-        case .fashion:  return "👔패션"
-        case .foodie:   return "🍔식도락"
-        case .travel:   return "✈️여행"
+        case .music:    return "🎧 음악"
+        case .media:    return "🎬 미디어"
+        case .game:     return "🎮 게임"
+        case .exercise: return "🏋️ 운동"
+        case .sports:   return "⚽️ 스포츠"
+        case .reading:  return "📚 독서"
+        case .fashion:  return "👔 패션"
+        case .foodie:   return "🍔 식도락"
+        case .travel:   return "✈️ 여행"
         }
     }
 
-    var subCategory: [SubCategory] {
+    var displayValueWithoutEmoji: String {
         switch self {
-        case .music: return MusicSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .media: return MediaSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .game: return GameSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .exercise: return ExerciseSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .sports: return SportsSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .reading: return ReadingSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .fashion: return FashionSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .foodie: return FoodieSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
-        case .travel: return TravelSubCategory.allCases.map { .init(transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .music:    return "음악"
+        case .media:    return "미디어"
+        case .game:     return "게임"
+        case .exercise: return "운동"
+        case .sports:   return "스포츠"
+        case .reading:  return "독서"
+        case .fashion:  return "패션"
+        case .foodie:   return "식도락"
+        case .travel:   return "여행"
+        }
+    }
+
+    var subCategories: [SubCategory] {
+        switch self {
+        case .music: return MusicSubCategory.allCases.map { .init(parentCategory: .music, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .media: return MediaSubCategory.allCases.map { .init(parentCategory: .media, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .game: return GameSubCategory.allCases.map { .init(parentCategory: .game, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .exercise: return ExerciseSubCategory.allCases.map { .init(parentCategory: .exercise, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .sports: return SportsSubCategory.allCases.map { .init(parentCategory: .sports, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .reading: return ReadingSubCategory.allCases.map { .init(parentCategory: .reading, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .fashion: return FashionSubCategory.allCases.map { .init(parentCategory: .fashion, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .foodie: return FoodieSubCategory.allCases.map { .init(parentCategory: .foodie, transferValue: $0.rawValue, displayValue: $0.displayValue) }
+        case .travel: return TravelSubCategory.allCases.map { .init(parentCategory: .travel, transferValue: $0.rawValue, displayValue: $0.displayValue) }
         }
     }
 
@@ -213,13 +227,15 @@ enum Category: String, CaseIterable, Identifiable {
     }
 }
 
-struct SubCategory: Identifiable {
-    let id = UUID()
+struct SubCategory: Hashable, Identifiable {
+    var id: String { transferValue }
+    let parentCategory: Category
     let transferValue: String
     let displayValue: String
 }
 
-struct SubCategoryWithHashtags {
-    let category: SubCategory
+struct SubCategoryWithHashtags: Hashable, Identifiable {
+    var id: String { subCategory.transferValue }
+    let subCategory: SubCategory
     var hashtags: [String]
 }

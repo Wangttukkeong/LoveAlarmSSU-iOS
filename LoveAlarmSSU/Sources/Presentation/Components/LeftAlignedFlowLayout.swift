@@ -26,7 +26,7 @@ struct LeftAlignedFlowLayout: Layout {
             proposal: proposal,
             subviews: subviews
         )
-        let width = rows.map { $0.width }.max() ?? 0
+        let width = proposal.width ?? rows.map { $0.width }.max() ?? 0
         let height = rows.reduce(0) { $0 + $1.height + ySpacing } - ySpacing
 
         return CGSize(width: width, height: height)
@@ -69,18 +69,23 @@ struct LeftAlignedFlowLayout: Layout {
         proposal: ProposedViewSize,
         subviews: Subviews
     ) -> [Row] {
+        guard let proposalWidth = proposal.width else { return [] }
+
         var rows: [Row] = []
         var currentRow: Row = Row(subviews: [], width: 0, height: 0)
 
         for subview in subviews {
             let size = subview.sizeThatFits(.unspecified)
-            if currentRow.width + size.width + xSpacing > proposal.width! {
+            let needsNewRow = !currentRow.subviews.isEmpty &&
+                             currentRow.width + size.width > proposalWidth
+
+            if needsNewRow {
                 rows.append(currentRow)
                 currentRow = Row(subviews: [], width: 0, height: 0)
             }
 
             currentRow.subviews.append(subview)
-            currentRow.width += size.width + xSpacing
+            currentRow.width += size.width + (currentRow.subviews.count > 1 ? xSpacing : 0)
             currentRow.height = max(currentRow.height, size.height)
         }
 

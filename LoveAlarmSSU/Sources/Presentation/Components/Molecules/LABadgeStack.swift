@@ -18,7 +18,7 @@ struct LABadgeStack<T: Identifiable>: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: wrap ? 8 : 6) {
                 ForEach(contents) {
-                    LAChip(
+                    LABadge(
                         text: $0[keyPath: textKeyPath],
                         textColor: textColor,
                         backgroundColor: backgroundColor

@@ -7,19 +7,17 @@
 import SwiftUI
 
 struct OptionalInfoView: View {
+    @Environment(OnboardingStore.self) private var onboardingStore
+    @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
+
     @FocusState private var heightFocusState: Bool
     @FocusState private var majorFocusState: Bool
-    @State private var height: String = ""
-    @State private var major: String = ""
+
     private let progress: Double = 40
 
-    let heightRegex = /^[0-9]{3}cm$/
-    let majorRegex = /^.*(?:학과|학부)$/
-    var disableCondition: Bool {
-        height.wholeMatch(of: heightRegex) == nil || major.wholeMatch(of: majorRegex) == nil
-    }
-
     var body: some View {
+        @Bindable var onboardingStore = onboardingStore
+
         VStack(spacing: 0) {
             LAProgressBar(progress: progress)
             LAHeader(
@@ -33,7 +31,7 @@ struct OptionalInfoView: View {
                     isFocused: $heightFocusState,
                     title: "키",
                     placeholder: "예시) 165cm",
-                    text: $height
+                    text: $onboardingStore.height
                 )
             )
             LAInputField(
@@ -41,17 +39,23 @@ struct OptionalInfoView: View {
                     isFocused: $majorFocusState,
                     title: "학과 (혹은 학부)",
                     placeholder: "예시) 컴퓨터학부",
-                    text: $major
+                    text: $onboardingStore.major
                 )
             )
             Spacer()
             LAActionButton(
                 config: .doubleHorizontal(
-                    primaryTitle: "입력 완료",
-                    primaryAction: {},
-                    primaryDisableCondition: disableCondition,
+                    primaryTitle: onboardingStore.optionalDisableCondition ? "다음" : "입력 완료",
+                    primaryAction: {
+                        onboardingCoordinator.push(OnboardingRoute.category)
+                    },
+                    primaryDisableCondition: onboardingStore.optionalDisableCondition,
                     secondaryTitle: "건너뛰기",
-                    secondaryAction: {},
+                    secondaryAction: {
+                        onboardingStore.height.removeAll()
+                        onboardingStore.major.removeAll()
+                        onboardingCoordinator.push(OnboardingRoute.category)
+                    },
                     secondaryDisableCondition: false,
                     subLabel: nil
                 )
@@ -62,18 +66,5 @@ struct OptionalInfoView: View {
     }
 }
 
-private struct SectionHeader: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .font(LAFont.callout, weight: .weak)
-            .foregroundStyle(LAColor.Content.base)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 4)
-            .padding(.top, 8)
-            .padding(.horizontal, 16)
-    }
-}
 
 #Preview { OptionalInfoView() }

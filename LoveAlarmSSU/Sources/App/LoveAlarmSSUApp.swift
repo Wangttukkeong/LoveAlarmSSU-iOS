@@ -29,6 +29,9 @@ struct LoveAlarmSSUApp: App {
                         .navigationDestination(for: AppRoute.self) {
                             appCoordinator.build($0)
                         }
+                        .sheet(item: $appCoordinator.sheet) {
+                            appCoordinator.buildSheet($0)
+                        }
                 }
                 .environment(appCoordinator)
             } else {

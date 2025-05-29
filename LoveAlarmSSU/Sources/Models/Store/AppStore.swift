@@ -4,7 +4,7 @@
 //
 //  Created by 박현수 on 5/28/25.
 //
-
+import CoreLocation
 import Foundation
 import Combine
 
@@ -16,14 +16,16 @@ final class AppStore {
 
     var user = User()
     var nearbyUsers: [NearbyUser] = []
-    var matchedNearbyUsers: Set<NearbyUser> {
+    // FIXME: 루키톤 후 수정
+    var matchedNearbyUsers: [NearbyUser] {
         let mySubCategories = Set(user.interests.compactMap { $0.subCategory })
 
-        return Set(nearbyUsers.filter { nearbyUser in
+        return nearbyUsers.filter { nearbyUser in
             let nearbySubCategories = Set(nearbyUser.interests.compactMap(\.subCategory))
             return !mySubCategories.isDisjoint(with: nearbySubCategories)
-        })
+        }
     }
+//    var matchedNearbyUsers: [NearbyUser] = []
 
     var selectedCategories: [Category] = []
 
@@ -42,10 +44,8 @@ final class AppStore {
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] location in
-                self?.user.userLocation = Location(
-                    latitude: location.coordinate.latitude,
-                    longitude: location.coordinate.longitude
-                )
+                guard let self = self else { return }
+                self.user.userLocation = Location(from: location.coordinate)
             }
             .store(in: &cancellables)
     }
@@ -59,12 +59,13 @@ final class AppStore {
             .store(in: &cancellables)
     }
 
+    // FIXME: - 고쳐
     private func fetchNearbyUsers() {
         guard UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") else { return }
         Task {
             do {
-                let fetchedNearbyUsers = try await NetworkService.getNearbyAll()
-                await MainActor.run { self.nearbyUsers = fetchedNearbyUsers }
+//                let fetchedNearbyUsers = try await NetworkService.getNearbyAll()
+//                await MainActor.run { self.nearbyUsers = fetchedNearbyUsers }
             } catch {
 
             }

@@ -10,9 +10,9 @@ import SwiftUI
 
 @Observable
 final class OnboardingCoordinator: Routable {
-    private(set) var sheet: (any Identifiable)?
+    private(set) var _sheet: (any Identifiable)?
 
-    private(set) var fullScreenCover: (any Identifiable)?
+    private(set) var _fullScreenCover: (any Identifiable)?
 
     var path = NavigationPath()
 
@@ -25,19 +25,19 @@ final class OnboardingCoordinator: Routable {
     }
     
     func presentSheet(_ sheet: any Identifiable) {
-        self.sheet = sheet
+        self._sheet = sheet
     }
     
     func presentFullScreenCover(_ fullScreenCover: any Identifiable) {
-        self.fullScreenCover = fullScreenCover
+        self._fullScreenCover = fullScreenCover
     }
     
     func dismissSheet() {
-        self.sheet = nil
+        self._sheet = nil
     }
     
     func dismissFullScreenCover() {
-        self.fullScreenCover = nil
+        self._fullScreenCover = nil
     }
 
     @ViewBuilder

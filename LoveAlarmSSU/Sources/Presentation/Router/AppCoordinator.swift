@@ -10,9 +10,16 @@ import SwiftUI
 
 @Observable
 final class AppCoordinator: Routable {
-    private(set) var sheet: (any Identifiable)?
-
-    private(set) var fullScreenCover: (any Identifiable)?
+    var _sheet: (any Identifiable)? {
+        didSet { dump(_sheet) }
+    }
+    
+    var sheet: AppSheet? {
+        get { _sheet as? AppSheet }
+        set { _sheet = newValue }
+    }
+    
+    var _fullScreenCover: (any Identifiable)?
 
     var path = NavigationPath()
 
@@ -25,19 +32,19 @@ final class AppCoordinator: Routable {
     }
 
     func presentSheet(_ sheet: any Identifiable) {
-        self.sheet = sheet
+        self._sheet = sheet
     }
 
     func presentFullScreenCover(_ fullScreenCover: any Identifiable) {
-        self.fullScreenCover = fullScreenCover
+        self._fullScreenCover = fullScreenCover
     }
 
     func dismissSheet() {
-        self.sheet = nil
+        self._sheet = nil
     }
 
     func dismissFullScreenCover() {
-        self.fullScreenCover = nil
+        self._fullScreenCover = nil
     }
 
     @ViewBuilder
@@ -46,8 +53,34 @@ final class AppCoordinator: Routable {
         case .main: MainView()
         }
     }
+
+    @ViewBuilder
+    func buildSheet(_ sheet: AppSheet) -> some View {
+        switch sheet {
+        case .profile(let user): ProfileSheet(nearbyUser: user)
+        case .notifications(let user): Text("notifications")
+        case .chat(let users): Text("chat")
+        }
+    }
 }
 
 enum AppRoute: Hashable {
     case main
+}
+
+enum AppSheet: Hashable, Identifiable {
+    case profile(NearbyUser)
+    case notifications(NearbyUser)
+    case chat([NearbyUser])
+
+    var id: String {
+        switch self {
+        case .profile:
+            return "profile"
+        case .notifications:
+            return "notifications"
+        case .chat:
+            return "chat"
+        }
+    }
 }

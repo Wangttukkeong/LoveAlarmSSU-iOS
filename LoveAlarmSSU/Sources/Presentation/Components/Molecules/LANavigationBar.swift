@@ -24,6 +24,9 @@ struct LANavigationBar: View {
             secondaryLabel: ImageResource? = nil,
             secondaryAction: (() -> Void)? = nil
         )
+        case sheet(
+            text: String
+        )
     }
 
     var body: some View {
@@ -35,13 +38,14 @@ struct LANavigationBar: View {
                 primaryAction,
                 secondaryLabel,
                 secondaryAction
-            ): RootTextNavigationBar(
-                text: text,
-                primaryLabel: primaryLabel,
-                primaryAction: primaryAction,
-                secondaryLabel: secondaryLabel,
-                secondaryAction: secondaryAction
-            )
+            ):
+                RootTextNavigationBar(
+                    text: text,
+                    primaryLabel: primaryLabel,
+                    primaryAction: primaryAction,
+                    secondaryLabel: secondaryLabel,
+                    secondaryAction: secondaryAction
+                )
 
             case let .rootPage(
                 text,
@@ -49,13 +53,16 @@ struct LANavigationBar: View {
                 primaryAction,
                 secondaryLabel,
                 secondaryAction
-            ): RootPageNavigationBar(
-                text: text,
-                primaryLabel: primaryLabel,
-                primaryAction: primaryAction,
-                secondaryLabel: secondaryLabel,
-                secondaryAction: secondaryAction
-            )
+            ):
+                RootPageNavigationBar(
+                    text: text,
+                    primaryLabel: primaryLabel,
+                    primaryAction: primaryAction,
+                    secondaryLabel: secondaryLabel,
+                    secondaryAction: secondaryAction
+                )
+            case .sheet(let text):
+                SheetNavigationBar(text: text)
             }
         }
         .frame(height: 60)
@@ -121,6 +128,29 @@ struct LANavigationBar: View {
                     .font(LAFont.subhead, weight: .regular)
                     .foregroundStyle(LAColor.Content.base)
             }
+        }
+    }
+
+    private struct SheetNavigationBar: View {
+        @Environment(\.dismiss) private var dismiss
+
+        let text: String
+        var body: some View {
+            HStack {
+                Text(text)
+                    .font(LAFont.title, weight: .strong)
+                    .foregroundStyle(LAColor.Content.base)
+                    .padding(.leading, 4)
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(.close)
+                        .renderingMode(.template)
+                        .foregroundStyle(LAColor.Content.assistive)
+                }
+            }
+            .padding(.horizontal, 16)
         }
     }
 }

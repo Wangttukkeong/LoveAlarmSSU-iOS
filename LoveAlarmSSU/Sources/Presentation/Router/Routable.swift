@@ -8,8 +8,8 @@
 import SwiftUI
 
 protocol Routable {
-    var sheet: (any Identifiable)? { get }
-    var fullScreenCover: (any Identifiable)? { get }
+    var _sheet: (any Identifiable)? { get }
+    var _fullScreenCover: (any Identifiable)? { get }
 
     var path: NavigationPath { get }
 

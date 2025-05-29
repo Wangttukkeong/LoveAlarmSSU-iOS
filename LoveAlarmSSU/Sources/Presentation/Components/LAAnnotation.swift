@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LAAnnotation: View {
     let nearbyUser: NearbyUser
-    let isMatched: Bool
+    var isMatched: Bool
 
     var body: some View {
         ZStack {
@@ -18,7 +18,7 @@ struct LAAnnotation: View {
                 .foregroundStyle(
                     isMatched ? LAColor.Semantic.Brand.strong : LAColor.BG.Fill.interactive
                 )
-                .foregroundStyle(LAStyle.Blur.ultraThin)
+                .foregroundStyle(LAStyle.Blur.ultraThick)
                 .shadow(LAStyle.Shadow.Elevation.Key.strong)
             Text(nearbyUser.emoji)
                 .font(.system(size: 20))

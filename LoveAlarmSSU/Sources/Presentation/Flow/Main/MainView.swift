@@ -46,16 +46,10 @@ struct MainView: View {
 
 private struct MapView: View {
     @Environment(AppStore.self) private var appStore
+    @Environment(AppCoordinator.self) private var appCoordinator
     @Binding var cameraPosition: MapCameraPosition
     @Binding var currentCoordinate: CLLocationCoordinate2D?
 
-    private let weights = [(0.0012, 0.0013), (0.001, -0.004), (-0.00125, 0.0012), (-0.0014, -0.007)]
-    private let names = ["김숭실", "조휴일", "한시오분", "링링"]
-    private let emojies = ["😘", "🍉", "⚽️", "🐶"]
-    private let interests: [Interest] = [
-        .init(category: .music, subCategory: SubCategory(parentCategory: .music, transferValue: "BAND", displayValue: "밴드"), hashtags: ["검정치마", "The1975"]),
-        .init(category: .media, subCategory: SubCategory(parentCategory: .media, transferValue: "MOVIE", displayValue: "영화"), hashtags: ["에에올", "드마카"])
-    ]
 
     var body: some View {
         Map(
@@ -66,25 +60,20 @@ private struct MapView: View {
                 Annotation(coordinate: coord) {
                     CurrentLocationAnnotation()
                 } label: { EmptyView() }
-
-                ForEach(0..<4, id: \.self) { idx in
-                    let newCoord = CLLocationCoordinate2D(latitude: coord.latitude + weights[idx].0, longitude: coord.longitude + weights[0].1)
-                    Annotation("", coordinate: newCoord) {
-                        let nearbyUser = NearbyUser(
-                            id: UUID().uuidString,
-                            nickname: "김숭실",
-                            emoji: emojies[idx],
-                            interests: interests,
-                            location: Location(from: newCoord),
-                            distance: sqrt(pow(weights[0].0, 2) + pow(weights[0].1, 2))
-                        )
-                        LAAnnotation(nearbyUser: nearbyUser, isMatched: idx == 2)
-                    }
-                }
             }
+
             ForEach(appStore.nearbyUsers, id: \.self) { nearby in
+
                 Annotation(coordinate: nearby.location.coordinate) {
-                    LAAnnotation(nearbyUser: nearby, isMatched: appStore.matchedNearbyUsers.contains(nearby))
+                    //FIXME: - 고쳐
+                    Button {
+                        appCoordinator.presentSheet(AppSheet.profile(nearby))
+                    } label: {
+                        LAAnnotation(nearbyUser: nearby, isMatched:
+                            (nearby.interests.first!.category == .music || nearby.interests.first!.category == .media)
+                        )
+                    }
+
                 } label: { EmptyView() }
 
             }
@@ -237,23 +226,24 @@ private struct BottomButtonGroup: View {
                     .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
             }
             Button {
-                
+
             } label: {
                 VStack(spacing: 0) {
-                    Text(appStore.nearbyUsers.isEmpty ? "😢 아직 일치하는 이성이 없어요ㅠ" : "근처에 일치하는 이성이 \(appStore.matchedNearbyUsers.count)명 있어요")
+                    Text(appStore.matchedNearbyUsers.isEmpty ? "😢 아직 일치하는 이성이 없어요ㅠ" : "근처에 일치하는 이성이 \(appStore.matchedNearbyUsers.count)명 있어요")
                         .font(LAFont.callout, weight: .strong)
-                        .foregroundStyle(appStore.nearbyUsers.isEmpty ? LAColor.Semantic.Brand.strong : LAColor.Content.elevated)
-                    Text(appStore.nearbyUsers.isEmpty ? "원래 찐사랑은 갑자기 나타나지 않아요..."  : "클릭하여 확인하기")
+                        .foregroundStyle(appStore.matchedNearbyUsers.isEmpty ? LAColor.Semantic.Brand.strong : LAColor.Content.elevated)
+                    Text(appStore.matchedNearbyUsers.isEmpty ? "원래 찐사랑은 갑자기 나타나지 않아요..."  : "클릭하여 확인하기")
                         .font(LAFont.footnote, weight: .regular)
-                        .foregroundStyle(appStore.nearbyUsers.isEmpty ? LAColor.Semantic.Brand.strong : LAColor.Content.elevated)
+                        .foregroundStyle(appStore.matchedNearbyUsers.isEmpty ? LAColor.Semantic.Brand.strong : LAColor.Content.elevated)
                 }
                 .padding(.vertical, 9)
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
-                .background(appStore.nearbyUsers.isEmpty ? LAColor.Semantic.Brand.regular : LAColor.Semantic.Brand.strong)
                 .background(LAStyle.Blur.ultraThin)
+                .background(appStore.matchedNearbyUsers.isEmpty ? LAColor.Semantic.Brand.regular : LAColor.Semantic.Brand.strong)
                 .clipShape(.rect(cornerRadius: 12))
             }
+            .disabled(appStore.matchedNearbyUsers.isEmpty)
             Button {
 
             } label: {
@@ -310,6 +300,45 @@ extension MainView {
                 span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
             )
         )
+
+
+
+
+
+
+
+
+
+        // FIXME: - 수상한 친구들 생성 로직 지우기
+        let weights = [(0.0012, 0.0013), (0.001, -0.0008), (-0.00125, 0.0006), (-0.0014, -0.0016)]
+        let names = ["김숭실", "조휴일", "한시오분", "링링"]
+        let emojies = ["😘", "🍉", "⚽️", "🐶"]
+        let interests: [Interest] = [
+            .init(category: .music, subCategory: SubCategory(parentCategory: .music, transferValue: "BAND", displayValue: "밴드"), hashtags: ["검정치마", "The1975"]),
+            .init(category: .media, subCategory: SubCategory(parentCategory: .media, transferValue: "MOVIE", displayValue: "영화"), hashtags: ["에에올", "드마카"])
+        ]
+        let interests2: [Interest] = [
+            .init(category: .exercise, subCategory: SubCategory(parentCategory: .exercise, transferValue: "RUNNING", displayValue: "러닝"), hashtags: ["한강런"]),
+            .init(category: .game, subCategory: SubCategory(parentCategory: .game, transferValue: "MOBILE", displayValue: "모바일게임"), hashtags: ["롤토체스"])
+        ]
+
+        var temp = [NearbyUser]()
+        for idx in 0..<4 {
+            let newCoord = CLLocationCoordinate2D(latitude: currentCoordinate!.latitude + weights[idx].0, longitude: currentCoordinate!.longitude + weights[idx].1)
+            let newNearby = (
+                NearbyUser(
+                    id: UUID().uuidString,
+                    nickname: names[idx],
+                    emoji: emojies[idx],
+                    interests: idx % 2 == 0 ? interests : interests2,
+                    location: Location(from: newCoord),
+                    distance: sqrt(pow(weights[0].0, 2) + pow(weights[0].1, 2))
+                )
+            )
+
+            temp.append(newNearby)
+        }
+        appStore.nearbyUsers = temp
     }
 }
 

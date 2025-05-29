@@ -12,28 +12,38 @@ struct ChatView: View {
     @FocusState private var isFocused: Bool
     @State private var incomingMessages: [Message] = []
     @State private var outgoingMessages: [Message] = []
-    @State private var additionalMessages: [Message] = []
+    @State private var additionalMessages: [Message] = [
+        Message(text: "이번에 추가콘 막콘 갔다왔어요", isIncoming: true),
+        Message(text: "오 저도 거기 갔다왔어요 거기 맨 앞자리", isIncoming: false),
+        Message(text: "누나는 검정치마 최애 앨범 뭐에요", isIncoming: false),
+        Message(text: "떨스티랑 201 좋아해요 대신 팀베이비 혐오함", isIncoming: true),
+        Message(text: "테토녀에요 에겐녀에요", isIncoming: false),
+        Message(text: "테토녀요", isIncoming: true),
+        Message(text: "제가 집이랑 차 해올테니까 결혼하시죠", isIncoming: false),
+        Message(text: "우리 근데 우리가 마지막 세대면 어떡하죠", isIncoming: false),
+        Message(text: "긴 세월에 변하지 않을 그런 사랑 하면 되죠", isIncoming: true)
+    ]
     @State private var inputText: String = ""
 
     var body: some View {
-        ZStack {
+
+        VStack {
+            TopView(nearbyUser: nearbyUser)
             ChattingView(
                 nearbyUser: nearbyUser,
                 incomingMessages: $incomingMessages,
                 outgoingMessages: $outgoingMessages,
                 additionalMessages: $additionalMessages
             )
-            VStack {
-                TopView(nearbyUser: nearbyUser)
-                Spacer()
-                SingleInputField(
-                    isFocused: $isFocused,
-                    title: nil,
-                    placeholder: "메시지를 입력하세요",
-                    text: $inputText,
-                    subLabel: nil
-                )
-            }
+            .ignoresSafeArea(edges: .top)
+            SingleInputField(
+                additionalMessages: $additionalMessages,
+                isFocused: $isFocused,
+                title: nil,
+                placeholder: "메시지를 입력하세요",
+                text: $inputText,
+                subLabel: nil
+            )
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.rootPage(text: "채팅"))
@@ -47,24 +57,10 @@ private struct ChattingView: View {
     @Binding var outgoingMessages: [Message]
     @Binding var additionalMessages: [Message]
 
-    let fi = [Message(text: "이번에 추가콘 막콘 갔다왔어요")]
-    let fo = [Message(text: "오 저도 거기 갔다왔어요 거기 맨 앞자리"), Message(text: "오 저도 거기 갔다왔어요 거기 맨 앞자리")]
-    let si = [Message(text: "떨스티랑 201 좋아해요 대신 팀베이비 혐오함")]
-    let so = [Message(text: "테토녀에요 에겐녀에요")]
-    let ti = [Message(text: "테토녀요")]
-    let to = [Message(text: "제가 집이랑 차 해올테니까 결혼하시죠"), Message(text: "우리 근데 우리가 마지막 세대면 어떡하죠")]
-    let _fi = [Message(text: "긴 세월에 변하지 않을 그런 사랑 하면 되죠")]
 
     var body: some View {
-        ScrollView(.vertical) {
-            ChatCell(isIncoming: true, messages: fi)
-            ChatCell(isIncoming: false, messages: fo)
-            ChatCell(isIncoming: true, messages: fi)
-            ChatCell(isIncoming: false, messages: fo)
-            ChatCell(isIncoming: true, messages: fi)
-            ChatCell(isIncoming: false, messages: fo)
-            ChatCell(isIncoming: true, messages: fi)
-            ChatCell(isIncoming: false, messages: additionalMessages)
+        ScrollView {
+            ChatCell(additionalMessages: $additionalMessages)
         }
         .rotationEffect(Angle(degrees: 180))
         .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
@@ -72,23 +68,22 @@ private struct ChattingView: View {
 }
 
 private struct ChatCell: View {
-    let isIncoming: Bool
-    let messages: [Message]
+    @Binding var additionalMessages: [Message]
     var body: some View {
-        LazyVStack(spacing: 8) {
-            ForEach(messages) {
+        VStack(spacing: 8) {
+            ForEach(additionalMessages, id: \.id) {
                 Text($0.text)
                     .font(LAFont.paragraphSmall, weight: .regular)
-                    .foregroundStyle(isIncoming ? LAColor.Content.elevated : LAColor.Content.base)
+                    .foregroundStyle($0.isIncoming ? LAColor.Content.elevated : LAColor.Content.base)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 20)
-                    .background(isIncoming ? LAColor.Semantic.Brand.strong : LAColor.BG.Fill.strong)
+                    .background($0.isIncoming ? LAColor.Semantic.Brand.strong : LAColor.BG.Fill.strong)
                     .clipShape(Capsule())
-                    .frame(maxWidth: .infinity, alignment: isIncoming ? .trailing : .leading)
-                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, alignment: $0.isIncoming ? .leading : .trailing)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, $0.isIncoming ? 8 : 0)
             }
         }
-        .padding(.vertical, 8)
         .rotationEffect(Angle(degrees: 180))
         .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
     }
@@ -108,6 +103,7 @@ private struct TopView: View {
 }
 
 private struct SingleInputField: View {
+    @Binding var additionalMessages: [Message]
     let isFocused: FocusState<Bool>.Binding
     let title: String?
     let placeholder: String
@@ -140,10 +136,12 @@ private struct SingleInputField: View {
                     }
                     TextField("", text: text)
                         .font(LAFont.body, weight: .regular)
+                        .frame(height: 24)
                         .foregroundStyle(LAColor.Content.base)
                         .focused(isFocused)
                 }
                 Button {
+                    additionalMessages.append(Message(text: text.wrappedValue, isIncoming: false))
                     text.wrappedValue = ""
                     isFocused.wrappedValue = false
                 } label: {
@@ -209,7 +207,7 @@ private struct MiddleSlot: View {
             } label: {
                 HStack(spacing: 4) {
                     Image(.report)
-                    Text("수정")
+                    Text("신고")
                         .font(LAFont.footnote, weight: .regular)
                         .foregroundStyle(LAColor.Content.base)
                 }
@@ -226,6 +224,7 @@ private struct MiddleSlot: View {
 //    ChatView()
 //}
 struct Message: Identifiable {
-    let id: UUID = UUID()
+    var id: String { text }
     let text: String
+    let isIncoming: Bool
 }

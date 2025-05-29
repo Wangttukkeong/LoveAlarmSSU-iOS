@@ -46,7 +46,6 @@ private struct ChatCell: View {
                         .font(LAFont.footnote, weight: .weak)
                         .foregroundStyle(LAColor.Content.assistive)
                         .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             if nearbyUser.nickname != "한시오분" {

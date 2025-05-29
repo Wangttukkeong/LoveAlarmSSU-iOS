@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileSheet: View {
     @Environment(AppCoordinator.self) private var appCoordinator
+    @Environment(\.dismiss) private var dismiss
     let nearbyUser: NearbyUser
 
     var body: some View {
@@ -21,7 +22,11 @@ struct ProfileSheet: View {
                 config: .single(
                     title: "채팅하기",
                     action: {
-
+                        Task {
+                            dismiss()
+                            try? await Task.sleep(for: .seconds(0.2))
+                            await MainActor.run { appCoordinator.push(AppRoute.chat(nearbyUser)) }
+                        }
                     },
                     disableCondition: false,
                     subLabel: nil
@@ -44,7 +49,7 @@ private struct MiddleSlot: View {
         " | \(["컴퓨터학부", "글로벌미디어학부", "경영학부", "화학공학과"].randomElement()!)"
     }
     private var height: String {
-        " | \((152...172).randomElement()!)"
+        " | \((152...172).randomElement()!)cm"
     }
 
     var body: some View {

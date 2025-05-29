@@ -51,26 +51,37 @@ final class AppCoordinator: Routable {
     func build(_ route: AppRoute) -> some View {
         switch route {
         case .main: MainView()
+        case .chat(let nearbyUser): ChatView(nearbyUser: nearbyUser)
         }
     }
 
     @ViewBuilder
     func buildSheet(_ sheet: AppSheet) -> some View {
         switch sheet {
-        case .profile(let user): ProfileSheet(nearbyUser: user)
-        case .notifications(let user): Text("notifications")
-        case .chat(let users): Text("chat")
+        case .profile(let user):
+            ProfileSheet(nearbyUser: user)
+                .presentationDetents([.height(250)])
+                .presentationDragIndicator(.visible)
+        case .notifications:
+            NotificationsSheet()
+                .presentationDetents([.height(340)])
+                .presentationDragIndicator(.visible)
+        case .chat(let users):
+            ChatSheet(nearbyUsers: users)
+                .presentationDetents([.height(280)])
+                .presentationDragIndicator(.visible)
         }
     }
 }
 
 enum AppRoute: Hashable {
     case main
+    case chat(NearbyUser)
 }
 
 enum AppSheet: Hashable, Identifiable {
     case profile(NearbyUser)
-    case notifications(NearbyUser)
+    case notifications
     case chat([NearbyUser])
 
     var id: String {

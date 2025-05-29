@@ -27,7 +27,6 @@ struct ProfileSheet: View {
                     subLabel: nil
                 )
             )
-            Spacer()
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.sheet(text: "프로필 보기"))
@@ -42,7 +41,7 @@ private struct MiddleSlot: View {
         "\((20...25).randomElement()!)세\(department)\(height)"
     }
     private var department: String {
-        " | \(["컴퓨터학부", "글로벌미디어학부", "경영학부", "화학공학과"])"
+        " | \(["컴퓨터학부", "글로벌미디어학부", "경영학부", "화학공학과"].randomElement()!)"
     }
     private var height: String {
         " | \((152...172).randomElement()!)"

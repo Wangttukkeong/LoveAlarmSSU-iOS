@@ -10,6 +10,7 @@ import MapKit
 
 struct MainView: View {
     @Environment(AppStore.self) private var appStore
+    @Environment(AppCoordinator.self) private var appCoordinator
     @State private var cameraPosition = MapCameraPosition.region(
         MKCoordinateRegion(
             center: .init(latitude: 37.497, longitude: 126.957),
@@ -33,14 +34,14 @@ struct MainView: View {
                 Spacer()
                 BottomButtonGroup(
                     setCameraButtonAction: setCameraToCurrentLocation,
-                    chatButtonAction: presentChatSheet
+                    centerButtonAction: presentMatchedChatSheet,
+                    chatButtonAction: presentAllChatSheet
                 )
             }
         }
         .onAppear(perform: fetchUserInfo)
         .onReceive(locationPublisher) { handleCurrentLocation($0) }
         .applyToolbarVisibility(.hidden, for: .navigationBar)
-
     }
 }
 
@@ -49,7 +50,6 @@ private struct MapView: View {
     @Environment(AppCoordinator.self) private var appCoordinator
     @Binding var cameraPosition: MapCameraPosition
     @Binding var currentCoordinate: CLLocationCoordinate2D?
-
 
     var body: some View {
         Map(
@@ -175,10 +175,12 @@ private struct MiddleSlot: View {
 }
 
 private struct TopButtonGroup: View {
+    @Environment(AppCoordinator.self) private var appCoordinator
+    @Environment(\.openURL) private var openURL
     var body: some View {
         HStack {
             Button {
-
+                openURL(URL(string: "https://first-adasaurus-740.notion.site/20273fb4cef080caa60bfb1dbef59cf9?source=copy_link")!)
             } label: {
                 Image(.settings)
                     .renderingMode(.template)
@@ -191,7 +193,7 @@ private struct TopButtonGroup: View {
             }
             Spacer()
             Button {
-
+                appCoordinator.presentSheet(AppSheet.notifications)
             } label: {
                 Image(.notifications)
                     .renderingMode(.template)
@@ -211,6 +213,7 @@ private struct TopButtonGroup: View {
 private struct BottomButtonGroup: View {
     @Environment(AppStore.self) private var appStore
     let setCameraButtonAction: () -> Void
+    let centerButtonAction: () -> Void
     let chatButtonAction: () -> Void
 
     var body: some View {
@@ -225,9 +228,7 @@ private struct BottomButtonGroup: View {
                     .clipShape(.rect(cornerRadius: 12))
                     .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
             }
-            Button {
-
-            } label: {
+            Button(action: chatButtonAction) {
                 VStack(spacing: 0) {
                     Text(appStore.matchedNearbyUsers.isEmpty ? "😢 아직 일치하는 이성이 없어요ㅠ" : "근처에 일치하는 이성이 \(appStore.matchedNearbyUsers.count)명 있어요")
                         .font(LAFont.callout, weight: .strong)
@@ -244,9 +245,7 @@ private struct BottomButtonGroup: View {
                 .clipShape(.rect(cornerRadius: 12))
             }
             .disabled(appStore.matchedNearbyUsers.isEmpty)
-            Button {
-
-            } label: {
+            Button(action: chatButtonAction) {
                 Image(.chat)
                     .renderingMode(.template)
                     .foregroundStyle(LAColor.Content.base)
@@ -287,8 +286,13 @@ extension MainView {
         )
     }
 
-    private func presentChatSheet() {}
+    private func presentAllChatSheet() {
+        appCoordinator.presentSheet(AppSheet.chat(appStore.nearbyUsers))
+    }
 
+    private func presentMatchedChatSheet() {
+        appCoordinator.presentSheet(AppSheet.chat(appStore.matchedNearbyUsers))
+    }
 
     private func handleCurrentLocation(_ location: CLLocation) {
         currentCoordinate = location.coordinate

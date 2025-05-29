@@ -11,13 +11,26 @@ import Combine
 @Observable
 final class AppStore {
     let locationPublisher = LocationService.shared.currentLocationPublisher
+    private let timer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
     private var cancellables = Set<AnyCancellable>()
 
     var user = User()
+    var nearbyUsers: [NearbyUser] = []
+    var matchedNearbyUsers: Set<NearbyUser> {
+        let mySubCategories = Set(user.interests.compactMap { $0.subCategory })
+
+        return Set(nearbyUsers.filter { nearbyUser in
+            let nearbySubCategories = Set(nearbyUser.interests.compactMap(\.subCategory))
+            return !mySubCategories.isDisjoint(with: nearbySubCategories)
+        })
+    }
 
     var selectedCategories: [Category] = []
 
-    init() { bindLocation() }
+    init() {
+        bindLocation()
+        bindTimer()
+    }
 
     convenience init(user: User) {
         self.init()
@@ -35,5 +48,26 @@ final class AppStore {
                 )
             }
             .store(in: &cancellables)
+    }
+
+    private func bindTimer() {
+        timer
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                fetchNearbyUsers()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func fetchNearbyUsers() {
+        guard UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") else { return }
+        Task {
+            do {
+                let fetchedNearbyUsers = try await NetworkService.getNearbyAll()
+                await MainActor.run { self.nearbyUsers = fetchedNearbyUsers }
+            } catch {
+
+            }
+        }
     }
 }

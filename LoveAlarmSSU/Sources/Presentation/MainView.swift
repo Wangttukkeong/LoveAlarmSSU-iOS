@@ -9,45 +9,105 @@ import SwiftUI
 import MapKit
 
 struct MainView: View {
-    @State private var cameraPosition = MapCameraPosition.automatic
+    @Environment(AppStore.self) private var appStore
+    @State private var cameraPosition = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: .init(latitude: 37.497, longitude: 126.957),
+            span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+        )
+    )
+    @State private var isCameraInitialized = false
+    @State private var currentCoordinate: CLLocationCoordinate2D?
+
+    let locationPublisher = LocationService.shared.currentLocationPublisher
 
     var body: some View {
         ZStack {
-            MapView(cameraPosition: $cameraPosition)
+            MapView(
+                cameraPosition: $cameraPosition,
+                currentCoordinate: $currentCoordinate
+            )
             VStack(spacing: 0) {
                 TopContainer()
-                
+                TopButtonGroup()
+                Spacer()
+                BottomButtonGroup(
+                    setCameraButtonAction: setCameraToCurrentLocation,
+                    chatButtonAction: presentChatSheet
+                )
             }
         }
+        .onAppear(perform: fetchUserInfo)
+        .onReceive(locationPublisher) { handleCurrentLocation($0) }
         .applyToolbarVisibility(.hidden, for: .navigationBar)
 
     }
 }
 
 private struct MapView: View {
+    @Environment(AppStore.self) private var appStore
     @Binding var cameraPosition: MapCameraPosition
+    @Binding var currentCoordinate: CLLocationCoordinate2D?
+
+    private let weights = [(0.0012, 0.0013), (0.001, -0.004), (-0.00125, 0.0012), (-0.0014, -0.007)]
+    private let names = ["김숭실", "조휴일", "한시오분", "링링"]
+    private let emojies = ["😘", "🍉", "⚽️", "🐶"]
+    private let interests: [Interest] = [
+        .init(category: .music, subCategory: SubCategory(parentCategory: .music, transferValue: "BAND", displayValue: "밴드"), hashtags: ["검정치마", "The1975"]),
+        .init(category: .media, subCategory: SubCategory(parentCategory: .media, transferValue: "MOVIE", displayValue: "영화"), hashtags: ["에에올", "드마카"])
+    ]
 
     var body: some View {
         Map(
             position: $cameraPosition,
             interactionModes: .all
         ) {
-            ForEach(0..<100, id: \.self) {
-                Annotation("", coordinate: .init(latitude: CGFloat($0), longitude: 100)) {
-                    Circle().frame(width: 24, height: 24)
+            if let coord = currentCoordinate {
+                Annotation(coordinate: coord) {
+                    CurrentLocationAnnotation()
+                } label: { EmptyView() }
+
+                ForEach(0..<4, id: \.self) { idx in
+                    let newCoord = CLLocationCoordinate2D(latitude: coord.latitude + weights[idx].0, longitude: coord.longitude + weights[0].1)
+                    Annotation("", coordinate: newCoord) {
+                        let nearbyUser = NearbyUser(
+                            id: UUID().uuidString,
+                            nickname: "김숭실",
+                            emoji: emojies[idx],
+                            interests: interests,
+                            location: Location(from: newCoord),
+                            distance: sqrt(pow(weights[0].0, 2) + pow(weights[0].1, 2))
+                        )
+                        LAAnnotation(nearbyUser: nearbyUser, isMatched: idx == 2)
+                    }
                 }
             }
+            ForEach(appStore.nearbyUsers, id: \.self) { nearby in
+                Annotation(coordinate: nearby.location.coordinate) {
+                    LAAnnotation(nearbyUser: nearby, isMatched: appStore.matchedNearbyUsers.contains(nearby))
+                } label: { EmptyView() }
+
+            }
+        }
+    }
+}
+
+private struct CurrentLocationAnnotation: View {
+    @Environment(AppStore.self) private var appStore
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(LAColor.BG.Fill.staticGeneral)
+                .frame(width: 48, height: 48)
+                .shadow(LAStyle.Shadow.Elevation.Key.strong)
+            Text(appStore.user.emoji)
+                .font(.system(size: 20))
         }
     }
 }
 
 private struct TopContainer: View {
     @Environment(AppStore.self) private var appStore
-    // FIXME: - 온보딩 연동 후 교체
-    struct TempBadgeModel: Identifiable {
-        let id = UUID()
-        let text: String
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,12 +126,12 @@ private struct TopContainer: View {
         .padding(.vertical, 4)
         .padding(.horizontal, 16)
         .background(LAColor.BG.Fill.interactive)
-        .background(Material.ultraThinMaterial)
+        .background(LAStyle.Blur.ultraThin)
         .clipShape(.rect(cornerRadius: 16))
         .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
         .padding(.horizontal, 12)
-
-        Spacer()
+        .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
     }
 }
 
@@ -94,7 +154,7 @@ private struct MiddleSlot: View {
         HStack(alignment: .center, spacing: 8) {
             // 이모지
             Text(appStore.user.emoji)
-                .font(.system(size: 24))
+                .font(.system(size: 20))
             // 이름 학과 etc..
             VStack(spacing: 2) {
                 Text(appStore.user.nickname)
@@ -125,45 +185,132 @@ private struct MiddleSlot: View {
     }
 }
 
-private struct ButtonGroup {
-    
+private struct TopButtonGroup: View {
+    var body: some View {
+        HStack {
+            Button {
+
+            } label: {
+                Image(.settings)
+                    .renderingMode(.template)
+                    .foregroundStyle(LAColor.Content.base)
+                    .padding(16)
+                    .background(LAColor.BG.Fill.interactive)
+                    .background(LAStyle.Blur.ultraThin)
+                    .clipShape(.rect(cornerRadius: 12))
+                    .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
+            }
+            Spacer()
+            Button {
+
+            } label: {
+                Image(.notifications)
+                    .renderingMode(.template)
+                    .foregroundStyle(LAColor.Content.base)
+                    .padding(16)
+                    .background(LAColor.BG.Fill.interactive)
+                    .background(LAStyle.Blur.ultraThin)
+                    .clipShape(.rect(cornerRadius: 12))
+                    .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+    }
 }
 
+private struct BottomButtonGroup: View {
+    @Environment(AppStore.self) private var appStore
+    let setCameraButtonAction: () -> Void
+    let chatButtonAction: () -> Void
 
-#Preview {
-//    LAProgressBar(progress: 80)
-    MainView()
-        .environment(
-            AppStore(
-                user: User(
-                    nickname: "박현수",
-                    emoji: "🥸",
-                    gender: .male,
-                    birthdate: "2000-11-22",
-                    height: "199cm",
-                    department: "컴퓨터학부",
-                    interests: [.init(
-                        category: .exercise,
-                        subCategory: SubCategory(
-                            parentCategory: .exercise,
-                            transferValue: "kk",
-                            displayValue: "스쿼트"
-                        ),
-                        hashtags: ["나잘쳐", "아옹"]
-                    ),
-                                .init(
-                                    category: .exercise,
-                                    subCategory: SubCategory(
-                                        parentCategory: .exercise,
-                                        transferValue: "fdas",
-                                        displayValue: "벤치"
-                                    ),
-                                    hashtags: ["아오", "아옹"]
-                                )],
-                    userLocation: Location(latitude: 37.45838283979024, longitude: 126.89437945811376)
-                )
+    var body: some View {
+        HStack {
+            Button(action: setCameraButtonAction) {
+                Image(.locationSearching)
+                    .renderingMode(.template)
+                    .foregroundStyle(LAColor.Content.base)
+                    .padding(16)
+                    .background(LAColor.BG.Fill.interactive)
+                    .background(LAStyle.Blur.ultraThin)
+                    .clipShape(.rect(cornerRadius: 12))
+                    .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
+            }
+            Button {
+                
+            } label: {
+                VStack(spacing: 0) {
+                    Text(appStore.nearbyUsers.isEmpty ? "😢 아직 일치하는 이성이 없어요ㅠ" : "근처에 일치하는 이성이 \(appStore.matchedNearbyUsers.count)명 있어요")
+                        .font(LAFont.callout, weight: .strong)
+                        .foregroundStyle(appStore.nearbyUsers.isEmpty ? LAColor.Semantic.Brand.strong : LAColor.Content.elevated)
+                    Text(appStore.nearbyUsers.isEmpty ? "원래 찐사랑은 갑자기 나타나지 않아요..."  : "클릭하여 확인하기")
+                        .font(LAFont.footnote, weight: .regular)
+                        .foregroundStyle(appStore.nearbyUsers.isEmpty ? LAColor.Semantic.Brand.strong : LAColor.Content.elevated)
+                }
+                .padding(.vertical, 9)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .background(appStore.nearbyUsers.isEmpty ? LAColor.Semantic.Brand.regular : LAColor.Semantic.Brand.strong)
+                .background(LAStyle.Blur.ultraThin)
+                .clipShape(.rect(cornerRadius: 12))
+            }
+            Button {
+
+            } label: {
+                Image(.chat)
+                    .renderingMode(.template)
+                    .foregroundStyle(LAColor.Content.base)
+                    .padding(16)
+                    .background(LAColor.BG.Fill.interactive)
+                    .background(LAStyle.Blur.ultraThin)
+                    .clipShape(.rect(cornerRadius: 12))
+                    .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+    }
+}
+
+// MARK: - 비즈니스 로직
+extension MainView {
+    private func fetchUserInfo() {
+        guard UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") else { return }
+        Task {
+            do {
+                let user = try await NetworkService.getUser()
+                await MainActor.run { appStore.user = user }
+            } catch {
+
+            }
+        }
+    }
+
+    private func setCameraToCurrentLocation() {
+        guard let location = LocationService.shared.currentLocation
+        else { return }
+        cameraPosition = .region(
+            MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
             )
         )
+    }
+
+    private func presentChatSheet() {}
+
+
+    private func handleCurrentLocation(_ location: CLLocation) {
+        currentCoordinate = location.coordinate
+        guard !isCameraInitialized else { return }
+        isCameraInitialized = true
+        cameraPosition = .region(
+            MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+            )
+        )
+    }
 }
 
 

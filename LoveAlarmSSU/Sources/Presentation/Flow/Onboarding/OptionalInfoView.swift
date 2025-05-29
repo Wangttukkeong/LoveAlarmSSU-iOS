@@ -71,6 +71,3 @@ struct OptionalInfoView: View {
         .withNavigationBar(.rootPage(text: "\(Int(progress))% 작성 완료"))
     }
 }
-
-
-#Preview { OptionalInfoView() }

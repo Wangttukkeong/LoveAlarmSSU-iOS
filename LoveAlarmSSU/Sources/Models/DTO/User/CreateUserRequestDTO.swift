@@ -14,6 +14,6 @@ struct CreateUserRequestDTO: RequestDTO {
     let birthdate: String
     let height: Int?
     let department: String?
-    let interest: [CreateInterestRequestDTO]?
-    let location: String?
+    let interests: [CreateInterestRequestDTO]?
+    let location: CreateLocationRequestDTO?
 }

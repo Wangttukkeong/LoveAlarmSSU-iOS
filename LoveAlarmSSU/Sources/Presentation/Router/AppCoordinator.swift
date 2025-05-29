@@ -41,21 +41,13 @@ final class AppCoordinator: Routable {
     }
 
     @ViewBuilder
-    func build(_ route: OnboardingRoute) -> some View {
+    func build(_ route: AppRoute) -> some View {
         switch route {
-        case .basic: BasicInfoView()
-        case .optional: OptionalInfoView()
-        case .category: CategoryInfoView()
-        case .firstSubCategory: FirstSubCategoryInfoView()
-        case .secondSubCategory: SecondSubCategoryInfoView()
+        case .main: MainView()
         }
     }
 }
 
 enum AppRoute: Hashable {
-    case basic
-    case optional
-    case category
-    case firstSubCategory
-    case secondSubCategory
+    case main
 }

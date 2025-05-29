@@ -9,27 +9,35 @@ import SwiftUI
 
 struct FirstSubCategoryInfoView: View {
     @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
-    @Environment(OnboardingStore.self) private var onboardingStore
+    @Environment(AppStore.self) private var appStore
 
+    @State private var firstInputText: String = ""
+    @State private var secondInputText: String = ""
+    @State private var interests: [Interest] = []
+    @State private var inputText: String = ""
+
+    private var selectedCategory: Category { appStore.selectedCategories[0] }
     let progress: Double = 80
 
+
+
     var body: some View {
-        @Bindable var onboardingStore = onboardingStore
+        @Bindable var appStore = appStore
 
         VStack(spacing: 0) {
             LAProgressBar(progress: progress)
             LAHeader(
-                title: "\(onboardingStore.name)님의 \(onboardingStore.secondCategory.displayValueWithoutEmoji) 취향에 대해 알려주세요",
+                title: "\(appStore.user.nickname)님의 \(selectedCategory.displayValueWithoutEmoji) 취향에 대해 알려주세요",
                 contents: "더 자세히 적을수록 나와 맞는 소울메이트가 찾아와요!",
                 size: .large,
                 align: .leading
             )
             LASectionHeader(text: "자세한 취향 분류", font: .subhead, weight: .strong)
             LeftAlignedFlowLayout(xSpacing: 8, ySpacing: 8) {
-                ForEach(onboardingStore.firstSubCategories) { subCategory in
+                ForEach(selectedCategory.subCategories) { subCategory in
                     LAChip(
                         text: "#\(subCategory.displayValue)",
-                        isSelected: onboardingStore.firstSubCategoriesWithHashtags.filter({ $0.subCategory == subCategory }).count > 0,
+                        isSelected: interests.contains { $0.subCategory == subCategory },
                         font: LAFont.callout,
                         weight: .weak,
                         color: LAColor.Content.disabled,
@@ -41,11 +49,11 @@ struct FirstSubCategoryInfoView: View {
                     )
                     .onTapGesture {
                         withAnimation {
-                            if onboardingStore.firstSubCategoriesWithHashtags.filter({ $0.subCategory == subCategory }).count > 0 {
-                                onboardingStore.firstSubCategoriesWithHashtags.remove(at: onboardingStore.firstSubCategoriesWithHashtags.firstIndex { $0.subCategory == subCategory } ?? 0)
+                            if interests.contains(where: { $0.subCategory == subCategory }) {
+                                interests.removeAll { $0.subCategory == subCategory }
                             } else {
-                                if onboardingStore.firstSubCategoriesWithHashtags.count >= 2 { return }
-                                onboardingStore.firstSubCategoriesWithHashtags.append(.init(subCategory: subCategory, hashtags: []))
+                                if interests.count >= 2 { return }
+                                interests.append(.init(category: selectedCategory, subCategory: subCategory))
                             }
                         }
                     }
@@ -54,7 +62,7 @@ struct FirstSubCategoryInfoView: View {
             .padding(.vertical, 10)
             .padding(.horizontal, 16)
 
-            if !onboardingStore.firstSubCategoriesWithHashtags.isEmpty {
+            if !interests.isEmpty {
                 LADivider(size: .small)
 
                 LASectionHeader(
@@ -67,41 +75,38 @@ struct FirstSubCategoryInfoView: View {
                         weight: .weak
                     )
                 )
-                ForEach(onboardingStore.firstSubCategoriesWithHashtags.indices, id: \.self) { elemIdx in
-                    let hashtagsBinding = $onboardingStore.firstSubCategoriesWithHashtags[elemIdx].hashtags
 
+                ForEach(interests.indices, id: \.self) { interestIdx in
                     LASectionHeader(
-                        text: onboardingStore.firstSubCategoriesWithHashtags[elemIdx].subCategory.displayValue,
-                        font: .paragraphLarge,
+                        text: interests[interestIdx].subCategory.displayValue,
+                        font: .footnote,
                         weight: .weak
                     )
                     LeftAlignedFlowLayout(xSpacing: 8, ySpacing: 8) {
-                        ForEach(hashtagsBinding.indices, id: \.self) { hashtagIdx in
+                        ForEach(interests[interestIdx].hashtags.indices, id: \.self) { hashtagIdx in
                             LAInputChip(
                                 config: .existing(
-                                    text: hashtagsBinding[hashtagIdx],
+                                    text: $interests[interestIdx].hashtags[hashtagIdx],
                                     onDelete: {
-                                        onboardingStore.firstSubCategoriesWithHashtags[elemIdx].hashtags.remove(at: hashtagIdx)
+                                        interests[interestIdx].hashtags.remove(at: hashtagIdx)
                                     }
                                 )
                             )
                         }
-                        if hashtagsBinding.count < 2 {
+                        if interests[interestIdx].hashtags.count < 2 {
                             LAInputChip(
                                 config: .input(
-                                    text: $onboardingStore.firstSubCategoryInputText[elemIdx],
+                                    text: $inputText,
                                     placeholder: "#해시태그를_입력해주세요",
                                     onSubmit: {
-                                        onboardingStore.firstSubCategoriesWithHashtags[elemIdx].hashtags.append(onboardingStore.firstSubCategoryInputText[elemIdx])
-                                        onboardingStore.firstSubCategoryInputText[elemIdx] = ""
+                                        interests[interestIdx].hashtags.append(inputText)
+                                        inputText = ""
                                     }
                                 )
                             )
-                            .onChange(of: onboardingStore.firstSubCategoryInputText[elemIdx]) { _, newValue in
-                               if newValue.count > 10 {
-                                   onboardingStore.firstSubCategoryInputText[elemIdx] = String(newValue.prefix(10))
-                               }
-                           }
+                            .onChange(of: inputText) { _, newValue in
+                                if newValue.count > 10 { inputText = String(newValue.prefix(10)) }
+                            }
                         }
                     }
                     .padding(.vertical, 10)
@@ -109,9 +114,26 @@ struct FirstSubCategoryInfoView: View {
                 }
             }
             Spacer()
+            LAActionButton(config:
+                    .single(
+                        title: "다음으로",
+                        action: {
+                            setFirstSubCategory()
+                            onboardingCoordinator.push(OnboardingRoute.secondSubCategory)
+                        },
+                        disableCondition: interests.isEmpty,
+                        subLabel: nil
+                    )
+            )
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.rootPage(text: "\(Int(progress))% 작성 완료"))
+    }
+}
+
+extension FirstSubCategoryInfoView {
+    func setFirstSubCategory() {
+        appStore.user.interests.append(contentsOf: interests)
     }
 }
 

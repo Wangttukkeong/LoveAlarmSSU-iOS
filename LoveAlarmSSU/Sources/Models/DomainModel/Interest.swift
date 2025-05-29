@@ -1,11 +1,21 @@
 //
-//  Category.swift
+//  Interest.swift
 //  LoveAlarmSSU
 //
 //  Created by 박현수 on 5/13/25.
 //
 
 import Foundation
+
+struct Interest: DomainModel {
+    var category: Category
+    var subCategory: SubCategory
+    var hashtags: [String] = []
+
+    var requestDTO: CreateInterestRequestDTO {
+        .init(category: category.rawValue, subCategory: subCategory.transferValue, hashtagList: hashtags)
+    }
+}
 
 enum Category: String, CaseIterable, Identifiable {
     case music    = "MUSIC"
@@ -70,6 +80,7 @@ enum Category: String, CaseIterable, Identifiable {
         case kpop    = "KPOP"
 
         var id: Self { self }
+        var parent: Category { .music }
         var displayValue: String {
             switch self {
             case .band:    return "밴드"
@@ -87,6 +98,7 @@ enum Category: String, CaseIterable, Identifiable {
         case documentary = "DOCUMENTARY"
 
         var id: Self { self }
+        var parent: Category { .media }
         var displayValue: String {
             switch self {
             case .movie:       return "영화"
@@ -103,6 +115,7 @@ enum Category: String, CaseIterable, Identifiable {
         case pc      = "PC"
 
         var id: Self { self }
+        var parent: Category { .game }
         var displayValue: String {
             switch self {
             case .mobile:  return "모바일게임"
@@ -123,6 +136,7 @@ enum Category: String, CaseIterable, Identifiable {
         case dance      = "DANCE"
 
         var id: Self { self }
+        var parent: Category { .exercise }
         var displayValue: String {
             switch self {
             case .running:    return "러닝"
@@ -147,6 +161,7 @@ enum Category: String, CaseIterable, Identifiable {
         case motor            = "MOTORSPORTS"
 
         var id: Self { self }
+        var parent: Category { .sports }
         var displayValue: String {
             switch self {
             case .kbo:              return "KBO"
@@ -168,6 +183,7 @@ enum Category: String, CaseIterable, Identifiable {
         case selfDevelopment = "SELF_DEVELOPMENT"
 
         var id: Self { self }
+        var parent: Category { .reading }
         var displayValue: String {
             switch self {
             case .novel:           return "소설"
@@ -186,6 +202,7 @@ enum Category: String, CaseIterable, Identifiable {
         case collection     = "COLLECTION"
 
         var id: Self { self }
+        var parent: Category { .fashion }
         var displayValue: String {
             switch self {
             case .street:         return "스트릿"
@@ -202,6 +219,7 @@ enum Category: String, CaseIterable, Identifiable {
         case cooking    = "COOKING"
 
         var id: Self { self }
+        var parent: Category { .foodie }
         var displayValue: String {
             switch self {
             case .restaurant: return "맛집탐방"
@@ -217,6 +235,7 @@ enum Category: String, CaseIterable, Identifiable {
         case camping  = "CAMPING"
 
         var id: Self { self }
+        var parent: Category { .travel }
         var displayValue: String {
             switch self {
             case .domestic: return "국내여행"
@@ -232,10 +251,4 @@ struct SubCategory: Hashable, Identifiable {
     let parentCategory: Category
     let transferValue: String
     let displayValue: String
-}
-
-struct SubCategoryWithHashtags: Hashable, Identifiable {
-    var id: String { subCategory.transferValue }
-    let subCategory: SubCategory
-    var hashtags: [String]
 }

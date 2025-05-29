@@ -5,4 +5,7 @@
 //  Created by 박현수 on 5/29/25.
 //
 
-protocol ResponseDTO: Decodable {}
+protocol ResponseDTO: Decodable {
+    associatedtype DomainModel
+    var domainModel: DomainModel { get }
+}

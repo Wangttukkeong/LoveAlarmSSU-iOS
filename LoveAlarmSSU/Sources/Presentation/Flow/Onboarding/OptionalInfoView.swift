@@ -7,16 +7,22 @@
 import SwiftUI
 
 struct OptionalInfoView: View {
-    @Environment(OnboardingStore.self) private var onboardingStore
+    @Environment(AppStore.self) private var appStore
     @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
 
     @FocusState private var heightFocusState: Bool
-    @FocusState private var majorFocusState: Bool
+    @FocusState private var departmentFocusState: Bool
+
+    let heightRegex = /^[0-9]{3}cm$/
+    let majorRegex = /^.*(?:학과|학부)$/
+    var optionalDisableCondition: Bool {
+        appStore.user.height.wholeMatch(of: heightRegex) == nil || appStore.user.department.wholeMatch(of: majorRegex) == nil
+    }
 
     private let progress: Double = 40
 
     var body: some View {
-        @Bindable var onboardingStore = onboardingStore
+        @Bindable var appStore = appStore
 
         VStack(spacing: 0) {
             LAProgressBar(progress: progress)
@@ -31,29 +37,29 @@ struct OptionalInfoView: View {
                     isFocused: $heightFocusState,
                     title: "키",
                     placeholder: "예시) 165cm",
-                    text: $onboardingStore.height
+                    text: $appStore.user.height
                 )
             )
             LAInputField(
                 config: .single(
-                    isFocused: $majorFocusState,
+                    isFocused: $departmentFocusState,
                     title: "학과 (혹은 학부)",
                     placeholder: "예시) 컴퓨터학부",
-                    text: $onboardingStore.major
+                    text: $appStore.user.department
                 )
             )
             Spacer()
             LAActionButton(
                 config: .doubleHorizontal(
-                    primaryTitle: onboardingStore.optionalDisableCondition ? "다음" : "입력 완료",
+                    primaryTitle: optionalDisableCondition ? "다음" : "입력 완료",
                     primaryAction: {
                         onboardingCoordinator.push(OnboardingRoute.category)
                     },
-                    primaryDisableCondition: onboardingStore.optionalDisableCondition,
+                    primaryDisableCondition: optionalDisableCondition,
                     secondaryTitle: "건너뛰기",
                     secondaryAction: {
-                        onboardingStore.height.removeAll()
-                        onboardingStore.major.removeAll()
+                        appStore.user.height.removeAll()
+                        appStore.user.department.removeAll()
                         onboardingCoordinator.push(OnboardingRoute.category)
                     },
                     secondaryDisableCondition: false,

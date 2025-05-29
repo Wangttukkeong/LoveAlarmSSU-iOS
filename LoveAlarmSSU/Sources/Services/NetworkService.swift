@@ -12,46 +12,74 @@ struct NetworkService {
     private static let provider = MoyaProvider<APIClient>()
 
     // MARK: - Interest
-    static func getInterest() async throws -> Data {
-        try await provider.request(.getInterest)
+    static func getInterest() async throws -> [Interest] {
+        let data = try await provider.request(.getInterest)
+        let responseDTO = try JSONDecoder().decode([InterestResponseDTO].self, from: data)
+        let domainModel = responseDTO.compactMap(\.domainModel)
+        return domainModel
     }
 
-    static func putInterest(_ body: [CreateInterestRequestDTO]) async throws -> Data {
-        try await provider.request(.putInterest(body: body))
+    static func putInterest(_ body: [CreateInterestRequestDTO]) async throws -> [Interest] {
+        let data = try await provider.request(.putInterest(body: body))
+        let responseDTO = try JSONDecoder().decode([InterestResponseDTO].self, from: data)
+        let domainModel = responseDTO.compactMap(\.domainModel)
+        return domainModel
     }
 
     // MARK: - Location
-    static func getLocation() async throws -> Data {
-        try await provider.request(.getLocation)
+    static func getLocation() async throws -> Location {
+        let data = try await provider.request(.getLocation)
+        let responseDTO = try JSONDecoder().decode(LocationResponseDTO.self, from: data)
+        let domainModel = responseDTO.domainModel
+        return domainModel
     }
 
-    static func getNearbyAll() async throws -> Data {
-        try await provider.request(.getNearbyAll)
+    static func getNearbyAll() async throws -> [NearbyUser] {
+        let data = try await provider.request(.getNearbyAll)
+        let responseDTO = try JSONDecoder().decode([NearByUserResponse].self, from: data)
+        let domainModel = responseDTO.compactMap(\.domainModel)
+        return domainModel
     }
 
-    static func getNearbyMatch() async throws -> Data {
-        try await provider.request(.getNearbyMatch)
+    static func getNearbyMatch() async throws -> [NearbyUser] {
+        let data = try await provider.request(.getNearbyMatch)
+        let responseDTO = try JSONDecoder().decode([NearByUserResponse].self, from: data)
+        let domainModel = responseDTO.compactMap(\.domainModel)
+        return domainModel
     }
 
-    static func putLocation(_ body: CreateLocationRequestDTO) async throws -> Data {
-        try await provider.request(.putLocation(body: body))
+    static func putLocation(_ body: CreateLocationRequestDTO) async throws -> Location {
+        let data = try await provider.request(.putLocation(body: body))
+        let responseDTO = try JSONDecoder().decode(LocationResponseDTO.self, from: data)
+        let domainModel = responseDTO.domainModel
+        return domainModel
     }
 
     // MARK: - User
-    static func getUser() async throws -> Data {
-        try await provider.request(.getUser)
+    static func getUser() async throws -> User {
+        let data = try await provider.request(.getUser)
+        let responseDTO = try JSONDecoder().decode(UserResponseDTO.self, from: data)
+        let domainModel = responseDTO.domainModel
+        return domainModel
     }
 
-    static func signUp(_ body: CreateUserRequestDTO) async throws -> Data {
-        try await provider.request(.signUp(body: body))
+    static func postUser(_ body: CreateUserRequestDTO) async throws -> User {
+        dump(body)
+        let data = try await provider.request(.postUser(body: body))
+        dump(data)
+        let responseDTO = try JSONDecoder().decode(UserResponseDTO.self, from: data)
+        let domainModel = responseDTO.domainModel
+        return domainModel
     }
 
-    static func patchUser(_ body: UpdateUserRequestDTO) async throws -> Data {
-        try await provider.request(.patchUser(body: body))
+    static func patchUser(_ body: UpdateUserRequestDTO) async throws -> Bool {
+        _ = try await provider.request(.patchUser(body: body))
+        return true
     }
 
-    static func deleteUser() async throws -> Data {
-        try await provider.request(.deleteUser)
+    static func deleteUser() async throws -> Bool {
+        _ = try await provider.request(.deleteUser)
+        return true
     }
 }
 
@@ -69,7 +97,7 @@ enum APIClient {
 
     // user-controller
     case getUser
-    case signUp(body: CreateUserRequestDTO)
+    case postUser(body: CreateUserRequestDTO)
     case patchUser(body: UpdateUserRequestDTO)
     case deleteUser
 }
@@ -80,7 +108,7 @@ extension APIClient: TargetType {
     }
 
     var path: String {
-        var id: String { UserDefaults.standard.string(forKey: "userId") ?? "" }
+        var id: String { UserDefaults.standard.string(forKey: "uuidString") ?? "" }
         switch self {
         case .getInterest:
             return "/interest/\(id)"
@@ -96,7 +124,7 @@ extension APIClient: TargetType {
             return "/location/update/\(id)"
         case .getUser:
             return "/user/\(id)"
-        case .signUp:
+        case .postUser:
             return "/user/sign-up"
         case .patchUser:
             return "/user/update/\(id)"
@@ -113,7 +141,7 @@ extension APIClient: TargetType {
              .getNearbyMatch,
              .getUser:
             return .get
-        case .signUp:
+        case .postUser:
             return .post
         case .putInterest,
              .putLocation:
@@ -138,7 +166,7 @@ extension APIClient: TargetType {
             return .requestJSONEncodable(body)
         case .putLocation(let body):
             return .requestJSONEncodable(body)
-        case .signUp(let body):
+        case .postUser(let body):
             return .requestJSONEncodable(body)
         case .patchUser(let body):
             return .requestJSONEncodable(body)
@@ -161,6 +189,8 @@ extension MoyaProvider {
                     continuation.resume(returning: response.data)
                 case let .failure(error):
                     dump(error.response?.statusCode)
+                    dump(error.response?.description)
+                    dump(String(data: error.response?.data ?? Data(), encoding: .utf8))
                     continuation.resume(throwing: error)
                 }
             }

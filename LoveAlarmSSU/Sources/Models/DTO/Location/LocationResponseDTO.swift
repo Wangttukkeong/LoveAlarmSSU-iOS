@@ -10,5 +10,9 @@ import Foundation
 struct LocationResponseDTO: ResponseDTO {
     let latitude: Double
     let longitude: Double
+
+    var domainModel: Location {
+        .init(latitude: latitude, longitude: longitude)
+    }
 }
 

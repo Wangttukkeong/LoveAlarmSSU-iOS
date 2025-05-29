@@ -5,7 +5,7 @@
 //  Created by 박현수 on 5/28/25.
 //
 
-enum Gender: String, CaseIterable, Identifiable {
+enum Gender: String, CaseIterable, Identifiable, DomainModel {
     case male = "MALE"
     case female = "FEMALE"
     var id: Self { self }
@@ -16,4 +16,6 @@ enum Gender: String, CaseIterable, Identifiable {
         case .female: "여성"
         }
     }
+
+    var requestDTO: String { self.rawValue }
 }

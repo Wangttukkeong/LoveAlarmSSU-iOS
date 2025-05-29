@@ -9,7 +9,12 @@ import SwiftUI
 
 struct CategoryInfoView: View {
     @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
-    @Environment(OnboardingStore.self) private var onboardingStore
+    @Environment(AppStore.self) private var appStore
+
+    @State private var selectedCategories = Set<Category>()
+
+    let categories = Category.allCases
+
     private let progress: Double = 60
 
     var body: some View {
@@ -22,10 +27,10 @@ struct CategoryInfoView: View {
                 align: .leading
             )
             LeftAlignedFlowLayout(xSpacing: 8, ySpacing: 8) {
-                ForEach(onboardingStore.categories) { category in
+                ForEach(categories) { category in
                     LAChip(
                         text: category.displayValue,
-                        isSelected: onboardingStore.selectedCategories.contains(category),
+                        isSelected: selectedCategories.contains(category),
                         font: .callout,
                         weight: .weak,
                         color: LAColor.Semantic.Brand.strong,
@@ -36,10 +41,10 @@ struct CategoryInfoView: View {
                         selectedBackgroundColor: LAColor.Semantic.Brand.strong
                     )
                     .onTapGesture {
-                        if onboardingStore.selectedCategories.contains(category) { onboardingStore.selectedCategories.remove(category) }
+                        if selectedCategories.contains(category) { selectedCategories.remove(category) }
                         else {
-                            if onboardingStore.selectedCategories.count >= 2 { return }
-                            onboardingStore.selectedCategories.insert(category)
+                            if selectedCategories.count >= 2 { return }
+                            selectedCategories.insert(category)
                         }
                     }
 
@@ -53,16 +58,22 @@ struct CategoryInfoView: View {
                 .single(
                     title: "다음으로",
                     action: {
-                        onboardingStore.mapCategories()
+                        mapCategories()
                         onboardingCoordinator.push(OnboardingRoute.firstSubCategory)
                     },
-                    disableCondition: onboardingStore.selectedCategories.count < 2,
+                    disableCondition: selectedCategories.count < 2,
                     subLabel: nil
                 )
             )
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.rootPage(text: "\(Int(progress))% 작성 완료"))
+    }
+}
+
+extension CategoryInfoView {
+    private func mapCategories() {
+        appStore.selectedCategories = Array(selectedCategories)
     }
 }
 

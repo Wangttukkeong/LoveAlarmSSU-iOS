@@ -10,16 +10,17 @@ import MapKit
 
 struct MainView: View {
     @State private var cameraPosition = MapCameraPosition.automatic
-    let locationPublisher = LocationService.shared.currentLocationPublisher
 
     var body: some View {
         ZStack {
             MapView(cameraPosition: $cameraPosition)
             VStack(spacing: 0) {
                 TopContainer()
+                
             }
         }
-        .onReceive(locationPublisher) { handleCurrentLocation($0) }
+        .applyToolbarVisibility(.hidden, for: .navigationBar)
+
     }
 }
 
@@ -41,6 +42,7 @@ private struct MapView: View {
 }
 
 private struct TopContainer: View {
+    @Environment(AppStore.self) private var appStore
     // FIXME: - 온보딩 연동 후 교체
     struct TempBadgeModel: Identifiable {
         let id = UUID()
@@ -59,13 +61,7 @@ private struct TopContainer: View {
             // 가운데 정보
             MiddleSlot()
 
-            LABadgeStack(
-                wrap: false,
-                contents: (0..<5).map { _ in TempBadgeModel(text: "#밴드") },
-                textKeyPath: \.text,
-                textColor: LAColor.Content.additive,
-                backgroundColor: LAColor.BG.Fill.regular
-            )
+            LABadgeStackForInterest(contents: appStore.user.interests)
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 16)
@@ -74,26 +70,38 @@ private struct TopContainer: View {
         .clipShape(.rect(cornerRadius: 16))
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
-        
 
         Spacer()
     }
 }
 
 private struct MiddleSlot: View {
+    @Environment(AppStore.self) private var appStore
+
+    private var informations: String {
+        "\(appStore.user.birthdate.koreanAge() ?? 0)세\(department)\(height)"
+    }
+
+    private var department: String {
+        appStore.user.department.isEmpty ? "" : " | \(appStore.user.department)"
+    }
+
+    private var height: String {
+        appStore.user.height.isEmpty ? "" : " | \(appStore.user.height)"
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
-            // 이미지
-            Image(systemName: "headphones")
-                .resizable()
-                .frame(width: 24, height: 24)
+            // 이모지
+            Text(appStore.user.emoji)
+                .font(.system(size: 24))
             // 이름 학과 etc..
             VStack(spacing: 2) {
-                Text("조휴일")
+                Text(appStore.user.nickname)
                     .font(LAFont.body, weight: .regular)
                     .foregroundStyle(LAColor.Content.base)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text("경영학부 | 만 19세 | 182cm")
+                Text(informations)
                     .font(LAFont.footnote, weight: .weak)
                     .foregroundStyle(LAColor.Content.additive)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,20 +125,45 @@ private struct MiddleSlot: View {
     }
 }
 
-extension MainView {
-    private func handleCurrentLocation(_ location: CLLocation) {
-        cameraPosition = .region(
-            MKCoordinateRegion(
-                center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
-            )
-        )
-    }
+private struct ButtonGroup {
+    
 }
 
+
 #Preview {
-    LAProgressBar(progress: 80)
-//    MainView()
+//    LAProgressBar(progress: 80)
+    MainView()
+        .environment(
+            AppStore(
+                user: User(
+                    nickname: "박현수",
+                    emoji: "🥸",
+                    gender: .male,
+                    birthdate: "2000-11-22",
+                    height: "199cm",
+                    department: "컴퓨터학부",
+                    interests: [.init(
+                        category: .exercise,
+                        subCategory: SubCategory(
+                            parentCategory: .exercise,
+                            transferValue: "kk",
+                            displayValue: "스쿼트"
+                        ),
+                        hashtags: ["나잘쳐", "아옹"]
+                    ),
+                                .init(
+                                    category: .exercise,
+                                    subCategory: SubCategory(
+                                        parentCategory: .exercise,
+                                        transferValue: "fdas",
+                                        displayValue: "벤치"
+                                    ),
+                                    hashtags: ["아오", "아옹"]
+                                )],
+                    userLocation: Location(latitude: 37.45838283979024, longitude: 126.89437945811376)
+                )
+            )
+        )
 }
 
 

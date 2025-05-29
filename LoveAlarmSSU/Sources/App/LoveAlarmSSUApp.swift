@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct LoveAlarmSSUApp: App {
-    @State private var onboardingStore = OnboardingStore()
+    @State private var appStore = AppStore()
     @State private var onboardingCoordinator = OnboardingCoordinator()
     @State private var appCoordinator = AppCoordinator()
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -23,8 +23,12 @@ struct LoveAlarmSSUApp: App {
     var body: some Scene {
         WindowGroup {
             if hasCompletedOnboarding {
-                NavigationStack(path: $onboardingCoordinator.path) {
-                    MainView()
+                NavigationStack(path: $appCoordinator.path) {
+                    appCoordinator
+                        .build(.main)
+                        .navigationDestination(for: AppRoute.self) {
+                            appCoordinator.build($0)
+                        }
                 }
                 .environment(appCoordinator)
             } else {
@@ -35,9 +39,9 @@ struct LoveAlarmSSUApp: App {
                             onboardingCoordinator.build($0)
                         }
                 }
-                .environment(onboardingStore)
                 .environment(onboardingCoordinator)
             }
         }
+        .environment(appStore)
     }
 }

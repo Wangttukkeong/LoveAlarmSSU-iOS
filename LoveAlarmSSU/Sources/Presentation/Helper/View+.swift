@@ -23,6 +23,10 @@ extension View {
         .applyToolbarVisibility(.hidden, for: .navigationBar)
     }
 
+    func shadow(_ params: (Color, CGFloat, CGFloat, CGFloat)) -> some View {
+        self.shadow(color: params.0, radius: params.1, x: params.2, y: params.3)
+    }
+
     @ViewBuilder
     func applyToolbarVisibility(_ visibility: Visibility, for bar: ToolbarPlacement) -> some View {
         if #available(iOS 18.0, *) {

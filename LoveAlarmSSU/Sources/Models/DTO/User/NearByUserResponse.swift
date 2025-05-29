@@ -15,4 +15,15 @@ struct NearByUserResponse: ResponseDTO {
     let latitude: Double
     let longitude: Double
     let distance: Double
+
+    var domainModel: NearbyUser {
+        .init(
+            id: id,
+            nickname: nickname,
+            emoji: emoji,
+            interests: interests.compactMap { $0.domainModel },
+            location: .init(latitude: latitude, longitude: longitude),
+            distance: distance
+        )
+    }
 }

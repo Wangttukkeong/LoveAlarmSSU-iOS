@@ -12,13 +12,18 @@ struct BasicInfoView: View {
     @FocusState private var emojiFieldFocusState: Bool
     @FocusState private var nameFieldFocusState: Bool
 
-    @Environment(OnboardingStore.self) private var onboardingStore: OnboardingStore
-    @Environment(OnboardingCoordinator.self) private var onboardingCoordinator: OnboardingCoordinator
+    @Environment(AppStore.self) private var appStore
+    @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
 
+    @State private var selectedYear: Int?
+
+    private var basicDisableCondition: Bool {
+        appStore.user.emoji.isEmpty || appStore.user.nickname.isEmpty || appStore.user.gender == nil || appStore.user.birthdate.isEmpty
+    }
     private let progress: Double = 30
 
     var body: some View {
-        @Bindable var onboardingStore = onboardingStore
+        @Bindable var appStore = appStore
 
         VStack(spacing: 0) {
             LAProgressBar(progress: progress)
@@ -33,15 +38,15 @@ struct BasicInfoView: View {
                     isFocused: $emojiFieldFocusState,
                     title: "나를 표현하는 이모티콘",
                     placeholder: "예시) 🥰",
-                    text: $onboardingStore.emoji,
+                    text: $appStore.user.emoji,
                     subLabel: "키보드에서 이모티콘을 자유롭게 입력해주세요!"
                 )
             )
-            .onChange(of: onboardingStore.emoji) { _, newValue in
+            .onChange(of: appStore.user.emoji) { _, newValue in
                 if let firstEmoji = newValue.filter(\.isEmoji).first {
-                    onboardingStore.emoji = String(firstEmoji)
+                    appStore.user.emoji = String(firstEmoji)
                 } else {
-                    onboardingStore.emoji = ""
+                    appStore.user.emoji = ""
                 }
             }
             LAInputField(
@@ -49,7 +54,7 @@ struct BasicInfoView: View {
                     isFocused: $nameFieldFocusState,
                     title: "닉네임",
                     placeholder: "예시) 김숭실",
-                    text: $onboardingStore.name
+                    text: $appStore.user.nickname
                 )
             )
             LASectionHeader(
@@ -62,7 +67,7 @@ struct BasicInfoView: View {
                 contents: Gender.allCases,
                 labelKeyPath: \.displayValue,
                 subLabelKeyPath: nil,
-                selection: $onboardingStore.gender
+                selection: $appStore.user.gender
             )
             LASectionHeader(
                 text: "생년월일",
@@ -70,7 +75,8 @@ struct BasicInfoView: View {
                 weight: .weak
             )
             YearPicker(
-                selectedYear: $onboardingStore.selectedYear
+                selectedYear: $selectedYear,
+                action: setUserBirthDate
             )
             Spacer()
             LAActionButton(
@@ -79,7 +85,7 @@ struct BasicInfoView: View {
                     action: {
                         onboardingCoordinator.push(OnboardingRoute.optional)
                     },
-                    disableCondition: onboardingStore.basicDisableCondition,
+                    disableCondition: basicDisableCondition,
                     subLabel: nil
                 )
             )
@@ -89,12 +95,21 @@ struct BasicInfoView: View {
     }
 }
 
+extension BasicInfoView {
+    private func setUserBirthDate(_ year: String) {
+        appStore.user.birthdate = year
+    }
+}
+
 struct YearPicker: View {
     @Binding var selectedYear: Int?
+    let action: (String) -> Void
 
-    private let years: [Int] = {
+    private let years: [String] = {
         let current = Calendar.current.component(.year, from: Date())
-        return Array(1900...current).reversed()
+        return Array(1900...current)
+                    .compactMap { String($0) }
+                    .reversed()
     }()
 
 
@@ -103,7 +118,8 @@ struct YearPicker: View {
             Menu {
                 ForEach(years, id: \.self) { year in
                     Button {
-                        selectedYear = year
+                        selectedYear = Int(year) ?? 2222
+                        action(year)
                     } label: {
                         Text("\(String(year))년")
                     }

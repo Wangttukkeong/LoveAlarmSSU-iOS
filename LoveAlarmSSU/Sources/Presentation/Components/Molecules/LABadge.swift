@@ -15,10 +15,10 @@ struct LABadge: View {
     var body: some View {
         Text(text)
             .font(LAFont.caption, weight: .regular)
-            .foregroundStyle(LAColor.Content.additive)
+            .foregroundStyle(textColor)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(LAColor.BG.Fill.regular)
+            .background(backgroundColor)
             .clipShape(.rect(cornerRadius: 4))
     }
 }

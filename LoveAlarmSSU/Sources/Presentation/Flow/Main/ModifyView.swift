@@ -224,7 +224,7 @@ struct ModifyView: View {
                     ForEach(firstCategory.subCategories) { subCategory in
                         LAChip(
                             text: "#\(subCategory.displayValue)",
-                            isSelected: firstCategoryinterests.contains { $0.subCategory == subCategory },
+                            isSelected: firstCategoryinterests.contains { $0.subCategory.transferValue == subCategory.transferValue },
                             font: LAFont.callout,
                             weight: .weak,
                             color: LAColor.Content.disabled,
@@ -236,8 +236,8 @@ struct ModifyView: View {
                         )
                         .onTapGesture {
                             withAnimation {
-                                if firstCategoryinterests.contains(where: { $0.subCategory == subCategory }) {
-                                    firstCategoryinterests.removeAll { $0.subCategory == subCategory }
+                                if firstCategoryinterests.contains(where: { $0.subCategory.transferValue == subCategory.transferValue }) {
+                                    firstCategoryinterests.removeAll { $0.subCategory.transferValue == subCategory.transferValue }
                                 } else {
                                     if firstCategoryinterests.count >= 2 { return }
                                     firstCategoryinterests.append(.init(category: firstCategory, subCategory: subCategory))
@@ -345,7 +345,7 @@ struct ModifyView: View {
                     ForEach(secondCategory.subCategories) { subCategory in
                         LAChip(
                             text: "#\(subCategory.displayValue)",
-                            isSelected: secondCategoryinterests.contains { $0.subCategory == subCategory },
+                            isSelected: secondCategoryinterests.contains { $0.subCategory.transferValue == subCategory.transferValue },
                             font: LAFont.callout,
                             weight: .weak,
                             color: LAColor.Content.disabled,
@@ -357,8 +357,8 @@ struct ModifyView: View {
                         )
                         .onTapGesture {
                             withAnimation {
-                                if secondCategoryinterests.contains(where: { $0.subCategory == subCategory }) {
-                                    secondCategoryinterests.removeAll { $0.subCategory == subCategory }
+                                if secondCategoryinterests.contains(where: { $0.subCategory.transferValue == subCategory.transferValue }) {
+                                    secondCategoryinterests.removeAll { $0.subCategory.transferValue == subCategory.transferValue }
                                 } else {
                                     if secondCategoryinterests.count >= 2 { return }
                                     secondCategoryinterests.append(.init(category: secondCategory, subCategory: subCategory))

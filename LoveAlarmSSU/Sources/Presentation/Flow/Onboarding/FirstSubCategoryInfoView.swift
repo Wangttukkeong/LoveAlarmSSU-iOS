@@ -16,7 +16,6 @@ struct FirstSubCategoryInfoView: View {
     private var selectedCategory: Category { appStore.selectedCategories[0] }
     let progress: Double = 80
 
-
     var body: some View {
         @Bindable var appStore = appStore
 
@@ -33,7 +32,7 @@ struct FirstSubCategoryInfoView: View {
                 ForEach(selectedCategory.subCategories) { subCategory in
                     LAChip(
                         text: "#\(subCategory.displayValue)",
-                        isSelected: interests.contains { $0.subCategory == subCategory },
+                        isSelected: interests.contains { $0.subCategory.transferValue == subCategory.transferValue },
                         font: LAFont.callout,
                         weight: .weak,
                         color: LAColor.Content.disabled,
@@ -45,8 +44,8 @@ struct FirstSubCategoryInfoView: View {
                     )
                     .onTapGesture {
                         withAnimation {
-                            if interests.contains(where: { $0.subCategory == subCategory }) {
-                                interests.removeAll { $0.subCategory == subCategory }
+                            if interests.contains(where: { $0.subCategory.transferValue == subCategory.transferValue }) {
+                                interests.removeAll { $0.subCategory.transferValue == subCategory.transferValue }
                             } else {
                                 if interests.count >= 2 { return }
                                 interests.append(.init(category: selectedCategory, subCategory: subCategory))

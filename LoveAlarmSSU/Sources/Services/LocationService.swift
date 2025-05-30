@@ -99,7 +99,7 @@ extension LocationService: CLLocationManagerDelegate {
 
         if let oldLocation = self.currentLocation {
             let moved = loc.distance(from: oldLocation)
-            guard moved >= 5 else { return }
+            guard moved >= 10 else { return }
         }
 
         self.currentLocation = loc

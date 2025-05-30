@@ -10,7 +10,7 @@ import Combine
 
 @Observable
 final class AppStore {
-    let locationPublisher = LocationService.shared.currentLocationPublisher
+    let locationService = LocationService.shared
     private let timer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
     private var cancellables = Set<AnyCancellable>()
 
@@ -40,7 +40,8 @@ final class AppStore {
     }
 
     private func bindLocation() {
-        locationPublisher
+        locationService
+            .currentLocationPublisher
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] location in
@@ -48,6 +49,17 @@ final class AppStore {
                 self.user.userLocation = Location(from: location.coordinate)
                 updateLocation(location)
                 dump(UserDefaults.standard.string(forKey: "uuidString"))
+            }
+            .store(in: &cancellables)
+
+        locationService
+            .authorizationStatusPublisher
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { status in
+                if status == .authorizedAlways || status == .authorizedWhenInUse {
+                    LocationService.shared.startLocationUpdate()
+                }
             }
             .store(in: &cancellables)
     }

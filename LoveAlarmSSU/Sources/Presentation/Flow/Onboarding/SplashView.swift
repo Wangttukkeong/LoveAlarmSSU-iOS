@@ -16,7 +16,7 @@ struct SplashView: View {
             Image(.splashIcon)
         }
         .task {
-            try? await Task.sleep(for: .seconds(1))
+            try? await Task.sleep(for: .seconds(2))
             onboardingCoordinator.push(OnboardingRoute.initial)
         }
     }

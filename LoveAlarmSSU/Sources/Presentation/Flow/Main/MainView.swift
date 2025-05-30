@@ -66,13 +66,13 @@ private struct MapView: View {
 
                 Annotation(coordinate: nearby.location.coordinate) {
                     //FIXME: - 고쳐
-                    Button {
-                        appCoordinator.presentSheet(AppSheet.profile(nearby))
-                    } label: {
-                        LAAnnotation(nearbyUser: nearby, isMatched:
-                            (nearby.interests.first!.category == .music || nearby.interests.first!.category == .media)
-                        )
-                    }
+                LAAnnotation(nearbyUser: nearby, isMatched:
+                    (nearby.interests.first!.category == .music || nearby.interests.first!.category == .media)
+                )
+                .onTapGesture {
+                    appCoordinator.presentSheet(AppSheet.profile(nearby))
+                }
+
                 } label: { EmptyView() }
 
             }

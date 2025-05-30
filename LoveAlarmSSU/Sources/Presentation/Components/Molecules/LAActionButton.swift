@@ -15,7 +15,8 @@ struct LAActionButton: View {
             title: String,
             action: () -> Void,
             disableCondition: Bool,
-            subLabel: String?,
+            subLabel: String? = nil,
+            subLabelAttributedString: AttributedString? = nil
         )
         case doubleHorizontal(
             primaryTitle: String,
@@ -40,23 +41,30 @@ struct LAActionButton: View {
     var body: some View {
         VStack(spacing: 10) {
             switch config {
-            case .single(let title, let action, let disableContidion, let subLabel):
+            case .single(let title, let action, let disableContidion, let subLabel, let subLabelAttributedString):
                 Button(action: action) {
                     Text(title)
                         .font(LAFont.body, weight: .regular)
                         .foregroundStyle(LAColor.Content.elevated)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(LAColor.Semantic.Brand.strong)
                         .conditionalBackgroundBlur(condition: disableContidion, material: LAStyle.Blur.thin)
+                        .background(LAColor.Semantic.Brand.strong)
                         .clipShape(.rect(cornerRadius: 12))
                 }
                 .disabled(disableContidion)
-                if let subLabel = subLabel {
+
+                if let subLabelAttributedString = subLabelAttributedString {
+                    Text(subLabelAttributedString)
+                        .font(LAFont.footnote, weight: .weak)
+                        .foregroundStyle(LAColor.Content.assistive)
+                } else if let subLabel = subLabel, disableContidion {
                     Text(subLabel)
                         .font(LAFont.footnote, weight: .weak)
                         .foregroundStyle(LAColor.Content.assistive)
                 }
+
+
             case .doubleHorizontal(let primaryTitle, let primaryAction, let primaryDisableCondition, let secondaryTitle, let secondaryAction, let secondaryDisableCondition, let subLabel):
                 Button(action: primaryAction) {
                     Text(primaryTitle)
@@ -64,8 +72,8 @@ struct LAActionButton: View {
                         .foregroundStyle(LAColor.Content.elevated)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(LAColor.Semantic.Brand.strong)
                         .conditionalBackgroundBlur(condition: primaryDisableCondition, material: LAStyle.Blur.thin)
+                        .background(LAColor.Semantic.Brand.strong)
                         .clipShape(.rect(cornerRadius: 12))
                 }
                 .disabled(primaryDisableCondition)

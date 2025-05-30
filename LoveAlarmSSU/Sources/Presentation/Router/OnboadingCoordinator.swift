@@ -43,6 +43,8 @@ final class OnboardingCoordinator: Routable {
     @ViewBuilder
     func build(_ route: OnboardingRoute) -> some View {
         switch route {
+        case .splash: SplashView()
+        case .initial: InitialView()
         case .basic: BasicInfoView()
         case .optional: OptionalInfoView()
         case .category: CategoryInfoView()
@@ -53,6 +55,8 @@ final class OnboardingCoordinator: Routable {
 }
 
 enum OnboardingRoute: Hashable {
+    case splash
+    case initial
     case basic
     case optional
     case category

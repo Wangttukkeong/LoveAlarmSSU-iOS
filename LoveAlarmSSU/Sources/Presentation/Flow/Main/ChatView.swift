@@ -26,9 +26,7 @@ struct ChatView: View {
     @State private var inputText: String = ""
 
     var body: some View {
-
-        VStack {
-            TopView(nearbyUser: nearbyUser)
+        ZStack {
             ChattingView(
                 nearbyUser: nearbyUser,
                 incomingMessages: $incomingMessages,
@@ -36,14 +34,18 @@ struct ChatView: View {
                 additionalMessages: $additionalMessages
             )
             .ignoresSafeArea(edges: .top)
-            SingleInputField(
-                additionalMessages: $additionalMessages,
-                isFocused: $isFocused,
-                title: nil,
-                placeholder: "메시지를 입력하세요",
-                text: $inputText,
-                subLabel: nil
-            )
+            VStack {
+                TopView(nearbyUser: nearbyUser)
+                Spacer()
+                SingleInputField(
+                    additionalMessages: $additionalMessages,
+                    isFocused: $isFocused,
+                    title: nil,
+                    placeholder: "메시지를 입력하세요",
+                    text: $inputText,
+                    subLabel: nil
+                )
+            }
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.rootPage(text: "채팅"))

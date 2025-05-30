@@ -46,11 +46,11 @@ struct NetworkService {
         return domainModel
     }
 
-    static func putLocation(_ body: UpdateLocationRequestDTO) async throws -> Location {
-        let data = try await provider.request(.putLocation(body: body))
-        let responseDTO = try JSONDecoder().decode(LocationResponseDTO.self, from: data)
-        let domainModel = responseDTO.domainModel
-        return domainModel
+    static func putLocation(_ body: UpdateLocationRequestDTO) async throws -> Bool {
+        _ = try await provider.request(.putLocation(body: body))
+//        let responseDTO = try JSONDecoder().decode(LocationResponseDTO.self, from: data)
+//        let domainModel = responseDTO.domainModel
+        return true
     }
 
     // MARK: - User

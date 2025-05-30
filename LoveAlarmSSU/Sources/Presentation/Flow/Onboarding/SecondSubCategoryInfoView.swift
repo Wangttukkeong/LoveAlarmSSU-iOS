@@ -99,8 +99,8 @@ struct SecondSubCategoryInfoView: View {
                                 )
                             )
                             .onChange(of: interests[interestIdx].subCategory.inputText) { _, newValue in
-                               if newValue.count > 10 { interests[interestIdx].subCategory.inputText = String(newValue.prefix(10)) }
-                           }
+                                if newValue.count > 10 { interests[interestIdx].subCategory.inputText = String(newValue.prefix(10)) }
+                            }
                         }
                     }
                     .padding(.vertical, 10)
@@ -109,19 +109,30 @@ struct SecondSubCategoryInfoView: View {
             }
             Spacer()
             LAActionButton(config:
-                .single(
-                    title: "다음으로",
-                    action: {
-                        setSecondSubCategory()
-                        signUp()
-                    },
-                    disableCondition: interests.isEmpty,
-                    subLabel: nil
-                )
+                    .single(
+                        title: "다음으로",
+                        action: {
+                            setSecondSubCategory()
+                            signUp()
+                        },
+                        disableCondition: interests.isEmpty,
+                        subLabelAttributedString: attributedString
+                    )
             )
         }
         .withBackground(LAColor.BG.Root.regular)
         .withNavigationBar(.rootPage(text: "\(Int(progress))% 작성 완료"))
+    }
+
+    private var attributedString: AttributedString {
+        var string = AttributedString("“시작하기” 버튼을 통해 서비스를 시작하였을 경우, 약관의 내용을 모두 읽고 이를 충분히 이해하였으며, 그 적용에 동의한 것으로 봅니다.")
+        if let range = string.range(of: "약관의 내용") {
+            string[range].underlineStyle = .single
+            string[range].foregroundColor = LAColor.Content.additive
+            string[range].font = UIFont(name: "SUIT-Bold", size: LAFont.footnote.size).map { .init($0) }
+            string[range].link = URL(string: "https://first-adasaurus-740.notion.site/20273fb4cef080caa60bfb1dbef59cf9?source=copy_link")!
+        }
+        return string
     }
 }
 

@@ -277,6 +277,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LoveAlarmSSU/Resources/PLists/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "좋아하면 숭리는";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "사용자의 위치를 기반으로 주변 사람을 찾기 위해 권한이 필요합니다. 수집한 위치정보는 암호화 되어 저장합니다.";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "사용자의 위치를 기반으로 주변 사람을 찾기 위해 권한이 필요합니다. 수집한 위치정보는 암호화 되어 저장합니다.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "사용자의 위치를 기반으로 주변 사람을 찾기 위해 권한이 필요합니다. 수집한 위치정보는 암호화 되어 저장합니다.";
@@ -314,6 +315,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LoveAlarmSSU/Resources/PLists/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "좋아하면 숭리는";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "사용자의 위치를 기반으로 주변 사람을 찾기 위해 권한이 필요합니다. 수집한 위치정보는 암호화 되어 저장합니다.";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "사용자의 위치를 기반으로 주변 사람을 찾기 위해 권한이 필요합니다. 수집한 위치정보는 암호화 되어 저장합니다.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "사용자의 위치를 기반으로 주변 사람을 찾기 위해 권한이 필요합니다. 수집한 위치정보는 암호화 되어 저장합니다.";

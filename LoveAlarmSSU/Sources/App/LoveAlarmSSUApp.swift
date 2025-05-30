@@ -37,7 +37,7 @@ struct LoveAlarmSSUApp: App {
             } else {
                 NavigationStack(path: $onboardingCoordinator.path) {
                     onboardingCoordinator
-                        .build(.basic)
+                        .build(.splash)
                         .navigationDestination(for: OnboardingRoute.self) {
                             onboardingCoordinator.build($0)
                         }

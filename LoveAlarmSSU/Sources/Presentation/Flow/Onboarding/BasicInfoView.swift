@@ -86,7 +86,7 @@ struct BasicInfoView: View {
                         onboardingCoordinator.push(OnboardingRoute.optional)
                     },
                     disableCondition: basicDisableCondition,
-                    subLabel: nil
+                    subLabel: "필수 정보들을 입력해야 다음으로 넘어갈 수 있어요."
                 )
             )
         }

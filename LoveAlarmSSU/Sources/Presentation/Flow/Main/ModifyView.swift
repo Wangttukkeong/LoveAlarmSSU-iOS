@@ -156,7 +156,11 @@ struct ModifyView: View {
             LAInputField(config: .single(isFocused: $nicknameFocusState, title: "닉네임", placeholder: "예시) 김숭실", text: $user.nickname))
             LAOptionPicker(config: .doubleVertical, contents: Gender.allCases, labelKeyPath: \.displayValue, subLabelKeyPath: nil, selection: $user.gender)
             YearPicker(selectedYear: $selectedYear) { str in
+                dump("str")
+                dump(str)
+                dump(user.birthdate)
                 user.birthdate = str
+                dump(user.birthdate)
             }
             LADivider(size: .small)
             LASectionHeader(text: "선택 프로필", font: LAFont.subhead, weight: .strong)
@@ -432,7 +436,7 @@ extension ModifyView {
                 guard let gender = user.gender?.rawValue else { return }
                 let birthdate = user.birthdate.count <= 4 ? "\(user.birthdate)-01-01" : user.birthdate
                 newUser.birthdate = birthdate
-                _ = try await NetworkService.patchUser(
+                dump(try await NetworkService.patchUser(
                     .init(
                         nickname: user.nickname,
                         emoji: user.emoji,
@@ -441,9 +445,9 @@ extension ModifyView {
                         height: user.height.parseHeight(),
                         department: user.department
                     )
-                )
-                let interests = try await NetworkService.putInterest(user.interests.compactMap { $0.updateRequestDTO })
-                newUser.interests = interests
+                ))
+                dump(try await NetworkService.putInterest(user.interests.compactMap { $0.updateRequestDTO }))
+
                 await MainActor.run {
                     appStore.user = newUser
                     appCoordinator.pop()
@@ -471,6 +475,7 @@ private struct YearPicker: View {
                 ForEach(years, id: \.self) { year in
                     Button {
                         selectedYear = year
+                        action(year)
                     } label: {
                         Text("\(String(year))년")
                     }

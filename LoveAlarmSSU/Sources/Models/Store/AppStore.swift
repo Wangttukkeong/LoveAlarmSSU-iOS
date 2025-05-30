@@ -47,6 +47,7 @@ final class AppStore {
                 guard let self = self else { return }
                 self.user.userLocation = Location(from: location.coordinate)
                 updateLocation(location)
+                dump(UserDefaults.standard.string(forKey: "uuidString"))
             }
             .store(in: &cancellables)
     }
@@ -61,6 +62,7 @@ final class AppStore {
     }
 
     private func updateLocation(_ location: CLLocation) {
+        guard UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") else { return }
         Task {
             dump(try await NetworkService.putLocation(.init(clLocation: location)))
         }

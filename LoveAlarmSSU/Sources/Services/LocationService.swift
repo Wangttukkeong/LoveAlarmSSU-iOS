@@ -96,8 +96,13 @@ extension LocationService: CLLocationManagerDelegate {
             return
         }
         dump("사용자 위치: \(loc.coordinate)")
-        self.currentLocation = loc
 
+        if let oldLocation = self.currentLocation {
+            let moved = loc.distance(from: oldLocation)
+            guard moved >= 5 else { return }
+        }
+
+        self.currentLocation = loc
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

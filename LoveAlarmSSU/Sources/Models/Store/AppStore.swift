@@ -46,6 +46,7 @@ final class AppStore {
             .sink { [weak self] location in
                 guard let self = self else { return }
                 self.user.userLocation = Location(from: location.coordinate)
+                updateLocation(location)
             }
             .store(in: &cancellables)
     }
@@ -59,16 +60,22 @@ final class AppStore {
             .store(in: &cancellables)
     }
 
+    private func updateLocation(_ location: CLLocation) {
+        Task {
+            dump(try await NetworkService.putLocation(.init(clLocation: location)))
+        }
+    }
+
     // FIXME: - 고쳐
     private func fetchNearbyUsers() {
         guard UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") else { return }
         Task {
-            do {
+//            do {
 //                let fetchedNearbyUsers = try await NetworkService.getNearbyAll()
 //                await MainActor.run { self.nearbyUsers = fetchedNearbyUsers }
-            } catch {
+//            } catch {
 
-            }
+//            }
         }
     }
 }

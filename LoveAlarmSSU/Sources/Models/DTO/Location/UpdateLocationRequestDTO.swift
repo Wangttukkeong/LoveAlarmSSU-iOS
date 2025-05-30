@@ -10,4 +10,14 @@ import CoreLocation
 struct UpdateLocationRequestDTO: RequestDTO {
     let latitude: Double
     let longitude: Double
+
+    init(location: Location) {
+        self.latitude = location.latitude
+        self.longitude = location.longitude
+    }
+
+    init(clLocation: CLLocation) {
+        self.latitude = clLocation.coordinate.latitude
+        self.longitude = clLocation.coordinate.longitude
+    }
 }

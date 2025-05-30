@@ -123,7 +123,7 @@ private struct SingleInputField: View {
 
             HStack(spacing: 8) {
                 Button {} label: {
-                    Image(.add)
+                    Image(.addIcon)
                         .renderingMode(.template)
                         .foregroundStyle(LAColor.Content.assistive)
                 }
@@ -172,6 +172,7 @@ private struct SingleInputField: View {
 
 
 private struct MiddleSlot: View {
+    @Environment(AppCoordinator.self) private var appCoordinator
     let nearbyUser: NearbyUser
 
     // FIXME: - 아래3개 다수정
@@ -203,7 +204,7 @@ private struct MiddleSlot: View {
             }
             
             Button {
-                
+                appCoordinator.presentSheet(AppSheet.report(nearbyUser))
             } label: {
                 HStack(spacing: 4) {
                     Image(.report)

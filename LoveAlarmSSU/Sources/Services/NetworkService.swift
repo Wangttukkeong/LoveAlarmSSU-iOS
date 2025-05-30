@@ -19,11 +19,9 @@ struct NetworkService {
         return domainModel
     }
 
-    static func putInterest(_ body: [CreateInterestRequestDTO]) async throws -> [Interest] {
-        let data = try await provider.request(.putInterest(body: body))
-        let responseDTO = try JSONDecoder().decode([InterestResponseDTO].self, from: data)
-        let domainModel = responseDTO.compactMap(\.domainModel)
-        return domainModel
+    static func putInterest(_ body: [UpdateInterestRequestDTO]) async throws -> Bool {
+        _ = try await provider.request(.putInterest(body: body))
+        return true
     }
 
     // MARK: - Location
@@ -48,7 +46,7 @@ struct NetworkService {
         return domainModel
     }
 
-    static func putLocation(_ body: CreateLocationRequestDTO) async throws -> Location {
+    static func putLocation(_ body: UpdateLocationRequestDTO) async throws -> Location {
         let data = try await provider.request(.putLocation(body: body))
         let responseDTO = try JSONDecoder().decode(LocationResponseDTO.self, from: data)
         let domainModel = responseDTO.domainModel
@@ -73,6 +71,7 @@ struct NetworkService {
     }
 
     static func patchUser(_ body: UpdateUserRequestDTO) async throws -> Bool {
+        dump(body)
         _ = try await provider.request(.patchUser(body: body))
         return true
     }
@@ -87,13 +86,13 @@ struct NetworkService {
 enum APIClient {
     // interest-controller
     case getInterest
-    case putInterest(body: [CreateInterestRequestDTO])
+    case putInterest(body: [UpdateInterestRequestDTO])
 
     // location-controller
     case getLocation
     case getNearbyAll
     case getNearbyMatch
-    case putLocation(body: CreateLocationRequestDTO)
+    case putLocation(body: UpdateLocationRequestDTO)
 
     // user-controller
     case getUser

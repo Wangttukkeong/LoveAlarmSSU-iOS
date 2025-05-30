@@ -15,6 +15,10 @@ struct Interest: DomainModel {
     var requestDTO: CreateInterestRequestDTO {
         .init(category: category.rawValue, subCategory: subCategory.transferValue, hashtagList: hashtags)
     }
+
+    var updateRequestDTO: UpdateInterestRequestDTO {
+        .init(category: category.rawValue, subCategory: subCategory.transferValue, hashtagList: hashtags)
+    }
 }
 
 enum Category: String, CaseIterable, Identifiable {
@@ -251,4 +255,5 @@ struct SubCategory: Hashable, Identifiable {
     let parentCategory: Category
     let transferValue: String
     let displayValue: String
+    var inputText = ""
 }

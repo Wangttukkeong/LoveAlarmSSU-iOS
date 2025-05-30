@@ -73,7 +73,6 @@ private struct MapView: View {
                             (nearby.interests.first!.category == .music || nearby.interests.first!.category == .media)
                         )
                     }
-
                 } label: { EmptyView() }
 
             }
@@ -125,6 +124,7 @@ private struct TopContainer: View {
 }
 
 private struct MiddleSlot: View {
+    @Environment(AppCoordinator.self) private var appCoordinator
     @Environment(AppStore.self) private var appStore
 
     private var informations: String {
@@ -157,7 +157,7 @@ private struct MiddleSlot: View {
             }
             // 수정 버튼
             Button {
-
+                appCoordinator.push(AppRoute.modify)
             } label: {
                 HStack(spacing: 4) {
                     Image(.photoImageEdit)
@@ -240,9 +240,10 @@ private struct BottomButtonGroup: View {
                 .padding(.vertical, 9)
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
-                .background(LAStyle.Blur.ultraThin)
                 .background(appStore.matchedNearbyUsers.isEmpty ? LAColor.Semantic.Brand.regular : LAColor.Semantic.Brand.strong)
+                .background(LAStyle.Blur.ultraThin)
                 .clipShape(.rect(cornerRadius: 12))
+                .shadow(LAStyle.Shadow.Elevation.Ambient.regular)
             }
             .disabled(appStore.matchedNearbyUsers.isEmpty)
             Button(action: chatButtonAction) {

@@ -15,7 +15,7 @@ extension View {
         }
     }
 
-    func withNavigationBar(_ config: LANavigationBar.Config) -> some View {
+    func withNavigationBar(_ config: LANavigationBar.Config, action: (() -> Void)? = nil) -> some View {
         VStack(spacing: 0) {
             LANavigationBar(config: config)
             self

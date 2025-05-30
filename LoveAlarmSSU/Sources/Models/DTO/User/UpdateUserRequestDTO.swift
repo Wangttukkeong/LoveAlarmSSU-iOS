@@ -7,10 +7,10 @@
 
 struct UpdateUserRequestDTO: RequestDTO {
     let nickname: String
-    let phoneNumber: String?
+    let phoneNumber: String? = "010-1111-1111"
     let emoji: String
     let gender: String
     let birthdate: String
-    let height: String?
+    let height: Int?
     let department: String?
 }

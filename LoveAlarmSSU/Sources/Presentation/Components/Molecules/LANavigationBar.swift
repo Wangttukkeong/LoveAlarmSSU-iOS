@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LANavigationBar: View {
     let config: Config
+
     enum Config {
         case rootText(
             text: String,
@@ -22,7 +23,8 @@ struct LANavigationBar: View {
             primaryLabel: ImageResource? = nil,
             primaryAction: (() -> Void)? = nil,
             secondaryLabel: ImageResource? = nil,
-            secondaryAction: (() -> Void)? = nil
+            secondaryAction: (() -> Void)? = nil,
+            backButtonAction: (() -> Void)? = nil
         )
         case sheet(
             text: String
@@ -52,14 +54,16 @@ struct LANavigationBar: View {
                 primaryLabel,
                 primaryAction,
                 secondaryLabel,
-                secondaryAction
+                secondaryAction,
+                backButtonAction
             ):
                 RootPageNavigationBar(
                     text: text,
                     primaryLabel: primaryLabel,
                     primaryAction: primaryAction,
                     secondaryLabel: secondaryLabel,
-                    secondaryAction: secondaryAction
+                    secondaryAction: secondaryAction,
+                    backButtonAction: backButtonAction
                 )
             case .sheet(let text):
                 SheetNavigationBar(text: text)
@@ -91,11 +95,13 @@ struct LANavigationBar: View {
         let primaryAction: (() -> Void)?
         let secondaryLabel: ImageResource?
         let secondaryAction: (() -> Void)?
+        let backButtonAction: (() -> Void)?
 
         var body: some View {
             ZStack {
                 HStack(spacing: 16) {
                     Button {
+                        backButtonAction?()
                         dismiss()
                     } label: {
                         Image(.arrowBack)
@@ -140,7 +146,7 @@ struct LANavigationBar: View {
                 Text(text)
                     .font(LAFont.title, weight: .strong)
                     .foregroundStyle(LAColor.Content.base)
-                    .padding(.leading, 4)
+                    .padding(.horizontal, 4)
                 Spacer()
                 Button {
                     dismiss()
@@ -151,6 +157,8 @@ struct LANavigationBar: View {
                 }
             }
             .padding(.horizontal, 16)
+            .frame(height: 60)
+            .padding(.top, 13)
         }
     }
 }

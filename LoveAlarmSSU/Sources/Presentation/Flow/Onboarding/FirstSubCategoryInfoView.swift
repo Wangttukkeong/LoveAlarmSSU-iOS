@@ -11,14 +11,10 @@ struct FirstSubCategoryInfoView: View {
     @Environment(OnboardingCoordinator.self) private var onboardingCoordinator
     @Environment(AppStore.self) private var appStore
 
-    @State private var firstInputText: String = ""
-    @State private var secondInputText: String = ""
     @State private var interests: [Interest] = []
-    @State private var inputText: String = ""
 
     private var selectedCategory: Category { appStore.selectedCategories[0] }
     let progress: Double = 80
-
 
 
     var body: some View {
@@ -96,16 +92,16 @@ struct FirstSubCategoryInfoView: View {
                         if interests[interestIdx].hashtags.count < 2 {
                             LAInputChip(
                                 config: .input(
-                                    text: $inputText,
+                                    text: $interests[interestIdx].subCategory.inputText,
                                     placeholder: "#해시태그를_입력해주세요",
                                     onSubmit: {
-                                        interests[interestIdx].hashtags.append(inputText)
-                                        inputText = ""
+                                        interests[interestIdx].hashtags.append(interests[interestIdx].subCategory.inputText)
+                                        interests[interestIdx].subCategory.inputText = ""
                                     }
                                 )
                             )
-                            .onChange(of: inputText) { _, newValue in
-                                if newValue.count > 10 { inputText = String(newValue.prefix(10)) }
+                            .onChange(of: interests[interestIdx].subCategory.inputText) { _, newValue in
+                                if newValue.count > 10 { interests[interestIdx].subCategory.inputText = String(newValue.prefix(10)) }
                             }
                         }
                     }
@@ -114,7 +110,8 @@ struct FirstSubCategoryInfoView: View {
                 }
             }
             Spacer()
-            LAActionButton(config:
+            LAActionButton(
+                config:
                     .single(
                         title: "다음으로",
                         action: {

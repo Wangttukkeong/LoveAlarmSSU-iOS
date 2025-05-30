@@ -101,7 +101,7 @@ extension BasicInfoView {
     }
 }
 
-struct YearPicker: View {
+private struct YearPicker: View {
     @Binding var selectedYear: Int?
     let action: (String) -> Void
 

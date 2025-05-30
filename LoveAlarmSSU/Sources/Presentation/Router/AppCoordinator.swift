@@ -52,6 +52,7 @@ final class AppCoordinator: Routable {
         switch route {
         case .main: MainView()
         case .chat(let nearbyUser): ChatView(nearbyUser: nearbyUser)
+        case .modify: ModifyView()
         }
     }
 
@@ -60,14 +61,18 @@ final class AppCoordinator: Routable {
         switch sheet {
         case .profile(let user):
             ProfileSheet(nearbyUser: user)
-                .presentationDetents([.height(250)])
+                .presentationDetents([.height(240)])
                 .presentationDragIndicator(.visible)
         case .notifications:
             NotificationsSheet()
-                .presentationDetents([.height(340)])
+                .presentationDetents([.height(330)])
                 .presentationDragIndicator(.visible)
         case .chat(let users):
             ChatSheet(nearbyUsers: users)
+                .presentationDetents([.height(270)])
+                .presentationDragIndicator(.visible)
+        case .report(let user):
+            ReportSheet(nearbyUser: user)
                 .presentationDetents([.height(280)])
                 .presentationDragIndicator(.visible)
         }
@@ -77,12 +82,14 @@ final class AppCoordinator: Routable {
 enum AppRoute: Hashable {
     case main
     case chat(NearbyUser)
+    case modify
 }
 
 enum AppSheet: Hashable, Identifiable {
     case profile(NearbyUser)
     case notifications
     case chat([NearbyUser])
+    case report(NearbyUser)
 
     var id: String {
         switch self {
@@ -92,6 +99,8 @@ enum AppSheet: Hashable, Identifiable {
             return "notifications"
         case .chat:
             return "chat"
+        case .report:
+            return "report"
         }
     }
 }

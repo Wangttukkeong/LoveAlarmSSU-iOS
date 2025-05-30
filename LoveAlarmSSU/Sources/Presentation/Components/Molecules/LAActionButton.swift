@@ -47,8 +47,8 @@ struct LAActionButton: View {
                         .foregroundStyle(LAColor.Content.elevated)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .conditionalBackgroundBlur(condition: disableContidion, material: LAStyle.Blur.thin)
                         .background(LAColor.Semantic.Brand.strong)
+                        .conditionalBackgroundBlur(condition: disableContidion, material: LAStyle.Blur.thin)
                         .clipShape(.rect(cornerRadius: 12))
                 }
                 .disabled(disableContidion)
@@ -64,8 +64,8 @@ struct LAActionButton: View {
                         .foregroundStyle(LAColor.Content.elevated)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .conditionalBackgroundBlur(condition: primaryDisableCondition, material: LAStyle.Blur.thin)
                         .background(LAColor.Semantic.Brand.strong)
+                        .conditionalBackgroundBlur(condition: primaryDisableCondition, material: LAStyle.Blur.thin)
                         .clipShape(.rect(cornerRadius: 12))
                 }
                 .disabled(primaryDisableCondition)
@@ -75,8 +75,8 @@ struct LAActionButton: View {
                         .foregroundStyle(LAColor.Semantic.Brand.strong)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .conditionalBackgroundBlur(condition: secondaryDisableCondition, material: LAStyle.Blur.thin)
                         .background(LAColor.Semantic.Brand.regular)
+                        .conditionalBackgroundBlur(condition: secondaryDisableCondition, material: LAStyle.Blur.thin)
                         .clipShape(.rect(cornerRadius: 12))
                 }
                 .disabled(secondaryDisableCondition)
@@ -93,8 +93,8 @@ struct LAActionButton: View {
                             .foregroundStyle(LAColor.Content.elevated)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .conditionalBackgroundBlur(condition: primaryDisableCondition, material: LAStyle.Blur.thin)
                             .background(LAColor.Semantic.Brand.strong)
+                            .conditionalBackgroundBlur(condition: primaryDisableCondition, material: LAStyle.Blur.thin)
                             .clipShape(.rect(cornerRadius: 12))
                     }
                     .disabled(primaryDisableCondition)
@@ -104,8 +104,8 @@ struct LAActionButton: View {
                             .foregroundStyle(LAColor.Semantic.Brand.strong)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .conditionalBackgroundBlur(condition: secondaryDisableCondition, material: LAStyle.Blur.thin)
                             .background(LAColor.Semantic.Brand.regular)
+                            .conditionalBackgroundBlur(condition: secondaryDisableCondition, material: LAStyle.Blur.thin)
                             .clipShape(.rect(cornerRadius: 12))
                     }
                     .disabled(secondaryDisableCondition)

@@ -10,10 +10,7 @@ import SwiftUI
 struct SecondSubCategoryInfoView: View {
     @Environment(AppStore.self) private var appStore
 
-    @State private var firstInputText: String = ""
-    @State private var secondInputText: String = ""
     @State private var interests: [Interest] = []
-    @State private var inputText: String = ""
 
     private var selectedCategory: Category { appStore.selectedCategories[1] }
     let progress: Double = 90
@@ -93,16 +90,16 @@ struct SecondSubCategoryInfoView: View {
                         if interests[interestIdx].hashtags.count < 2 {
                             LAInputChip(
                                 config: .input(
-                                    text: $inputText,
+                                    text: $interests[interestIdx].subCategory.inputText,
                                     placeholder: "#해시태그를_입력해주세요",
                                     onSubmit: {
-                                        interests[interestIdx].hashtags.append(inputText)
-                                        inputText = ""
+                                        interests[interestIdx].hashtags.append(interests[interestIdx].subCategory.inputText)
+                                        interests[interestIdx].subCategory.inputText = ""
                                     }
                                 )
                             )
-                            .onChange(of: inputText) { _, newValue in
-                               if newValue.count > 10 { inputText = String(newValue.prefix(10)) }
+                            .onChange(of: interests[interestIdx].subCategory.inputText) { _, newValue in
+                               if newValue.count > 10 { interests[interestIdx].subCategory.inputText = String(newValue.prefix(10)) }
                            }
                         }
                     }
